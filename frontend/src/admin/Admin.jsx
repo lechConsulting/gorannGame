@@ -8,26 +8,47 @@ const EMPTY = { code: "", name: "", type: "Allié", category: "main_deck", cost:
 
 export default function Admin({ onQuit }) {
   const [authed, setAuthed] = useState(hasToken());
+  const [tab, setTab] = useState("cards"); // "cards" | "users"
+
+  if (!authed) return <Login onOk={() => setAuthed(true)} onQuit={onQuit} />;
+
+  return (
+    <div className="bo">
+      <div className="bo__top">
+        <div className="bo__tabs">
+          <button className={`bo__tab ${tab === "cards" ? "is-active" : ""}`} onClick={() => setTab("cards")}>🎴 Cartes</button>
+          <button className={`bo__tab ${tab === "users" ? "is-active" : ""}`} onClick={() => setTab("users")}>👤 Utilisateurs</button>
+        </div>
+        <div className="bo__actions">
+          <button className="gbtn gbtn--ghost" onClick={() => { api.logout(); setAuthed(false); }}>Déconnexion</button>
+          <button className="gbtn gbtn--ghost" onClick={onQuit}>← Jeu</button>
+        </div>
+      </div>
+
+      {tab === "cards" ? <CardsPanel onExpired={() => setAuthed(false)} /> : <UsersPanel onExpired={() => setAuthed(false)} />}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------ Cartes
+
+function CardsPanel({ onExpired }) {
   const [cards, setCards] = useState([]);
   const [error, setError] = useState("");
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("all");
-  const [edit, setEdit] = useState(null); // carte en cours d'édition (ou null)
+  const [edit, setEdit] = useState(null);
 
-  useEffect(() => {
-    if (authed) reload();
-  }, [authed]);
+  useEffect(() => { reload(); }, []);
 
   async function reload() {
     try {
       setCards(await api.adminCards());
     } catch (e) {
       setError(e.message);
-      if (String(e.message).includes("401") || String(e.message).toLowerCase().includes("jwt")) setAuthed(false);
+      if (isAuthError(e)) onExpired();
     }
   }
-
-  if (!authed) return <Login onOk={() => setAuthed(true)} onQuit={onQuit} />;
 
   const filtered = cards.filter(
     (c) => (cat === "all" || c.category === cat) && c.name.toLowerCase().includes(q.toLowerCase()),
@@ -56,14 +77,10 @@ export default function Admin({ onQuit }) {
   }
 
   return (
-    <div className="bo">
-      <div className="bo__top">
-        <h1>🔧 Back-office — cartes ({cards.length})</h1>
-        <div className="bo__actions">
-          <button className="gbtn" onClick={() => setEdit({ ...EMPTY })}>+ Nouvelle carte</button>
-          <button className="gbtn gbtn--ghost" onClick={() => { api.logout(); setAuthed(false); }}>Déconnexion</button>
-          <button className="gbtn gbtn--ghost" onClick={onQuit}>← Jeu</button>
-        </div>
+    <>
+      <div className="bo__subtop">
+        <h2>Cartes ({cards.length})</h2>
+        <button className="gbtn" onClick={() => setEdit({ ...EMPTY })}>+ Nouvelle carte</button>
       </div>
 
       <div className="bo__filters">
@@ -101,8 +118,184 @@ export default function Admin({ onQuit }) {
       </table>
 
       {edit && <EditForm card={edit} onCancel={() => setEdit(null)} onSave={save} />}
+    </>
+  );
+}
+
+// ------------------------------------------------------------- Utilisateurs
+
+function UsersPanel({ onExpired }) {
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState("");
+  const [q, setQ] = useState("");
+  const [edit, setEdit] = useState(null); // { ...user } ou { create:true }
+
+  useEffect(() => { reload(); }, []);
+
+  async function reload() {
+    try {
+      setUsers(await api.adminUsers());
+    } catch (e) {
+      setError(e.message);
+      if (isAuthError(e)) onExpired();
+    }
+  }
+
+  const filtered = users.filter(
+    (u) => u.email.toLowerCase().includes(q.toLowerCase()) || (u.pseudo || "").toLowerCase().includes(q.toLowerCase()),
+  );
+
+  async function save(form) {
+    setError("");
+    try {
+      if (form.create) {
+        await api.adminCreateUser({ email: form.email, pseudo: form.pseudo, password: form.password, isAdmin: form.isAdmin });
+      } else {
+        const patch = { pseudo: form.pseudo, isAdmin: form.isAdmin };
+        if (form.password) patch.password = form.password;
+        await api.adminUpdateUser(form.id, patch);
+      }
+      setEdit(null);
+      reload();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function toggleAdmin(u) {
+    setError("");
+    try {
+      await api.adminUpdateUser(u.id, { isAdmin: !u.isAdmin });
+      reload();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function remove(u) {
+    if (!window.confirm(`Supprimer le compte « ${u.pseudo || u.email} » ?\nSon historique de parties sera aussi supprimé.`)) return;
+    setError("");
+    try {
+      await api.adminDeleteUser(u.id);
+      reload();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  return (
+    <>
+      <div className="bo__subtop">
+        <h2>Utilisateurs ({users.length})</h2>
+        <button className="gbtn" onClick={() => setEdit({ create: true, email: "", pseudo: "", password: "", isAdmin: false })}>+ Nouvel utilisateur</button>
+      </div>
+
+      <div className="bo__filters">
+        <input placeholder="Rechercher par email ou pseudo…" value={q} onChange={(e) => setQ(e.target.value)} />
+      </div>
+      <p className="error">{error}</p>
+
+      <table className="bo__table">
+        <thead>
+          <tr><th>Email</th><th>Pseudo</th><th>Rôle</th><th>Parties</th><th>Inscrit le</th><th></th></tr>
+        </thead>
+        <tbody>
+          {filtered.map((u) => (
+            <tr key={u.id}>
+              <td>
+                <strong>{u.email}</strong>
+                {u.isSuperAdmin && <span className="bo__tag bo__tag--super" title="Super-administrateur : toujours admin">super-admin</span>}
+                {u.isSelf && <span className="bo__tag">vous</span>}
+              </td>
+              <td>{u.pseudo}</td>
+              <td>
+                {u.isAdmin
+                  ? <span className="bo__role bo__role--admin">ADMIN</span>
+                  : <span className="bo__role bo__role--joueur">JOUEUR</span>}
+              </td>
+              <td>{u.stats?.games ?? 0}{u.stats?.wins ? ` (${u.stats.wins}🏆)` : ""}</td>
+              <td>{new Date(u.createdAt).toLocaleDateString("fr-FR")}</td>
+              <td className="bo__rowbtns">
+                <button
+                  className="gbtn gbtn--sm"
+                  disabled={u.isSuperAdmin || u.isSelf}
+                  title={u.isSuperAdmin ? "Le super-admin reste toujours administrateur" : u.isSelf ? "Vous ne pouvez pas changer votre propre rôle" : ""}
+                  onClick={() => toggleAdmin(u)}
+                >
+                  {u.isAdmin ? "↓ Joueur" : "↑ Admin"}
+                </button>
+                <button className="gbtn gbtn--sm" onClick={() => setEdit({ ...u, password: "" })}>✏️</button>
+                <button
+                  className="gbtn gbtn--sm gbtn--danger"
+                  disabled={u.isSuperAdmin || u.isSelf}
+                  title={u.isSuperAdmin ? "Le super-admin ne peut pas être supprimé" : u.isSelf ? "Vous ne pouvez pas supprimer votre propre compte" : ""}
+                  onClick={() => remove(u)}
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {edit && <UserForm user={edit} onCancel={() => setEdit(null)} onSave={save} />}
+    </>
+  );
+}
+
+function UserForm({ user, onCancel, onSave }) {
+  const [f, setF] = useState(user);
+  const isCreate = !!user.create;
+  const roleLocked = f.isSuperAdmin || f.isSelf; // super-admin / soi-même : rôle non modifiable
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+
+  return (
+    <div className="modal-overlay" onClick={onCancel}>
+      <div className="modal bo-edit" onClick={(e) => e.stopPropagation()}>
+        <div className="modal__head">
+          <h3>{isCreate ? "Nouvel utilisateur" : `Éditer : ${user.pseudo || user.email}`}</h3>
+        </div>
+        <div className="bo-edit__grid">
+          <label>Email
+            <input type="email" value={f.email} onChange={set("email")} disabled={!isCreate} />
+          </label>
+          <label>Pseudo<input value={f.pseudo} onChange={set("pseudo")} /></label>
+          <label>{isCreate ? "Mot de passe" : "Nouveau mot de passe (laisser vide)"}
+            <input type="password" value={f.password || ""} onChange={set("password")} autoComplete="new-password" />
+          </label>
+          <label className="bo-edit__check">
+            <input
+              type="checkbox"
+              checked={!!f.isAdmin}
+              disabled={roleLocked}
+              onChange={(e) => setF({ ...f, isAdmin: e.target.checked })}
+            />
+            Administrateur
+            {f.isSuperAdmin && <span className="bo__tag bo__tag--super">super-admin</span>}
+          </label>
+        </div>
+        {roleLocked && (
+          <p className="bo__hint">
+            {f.isSuperAdmin
+              ? "Le super-administrateur est toujours administrateur."
+              : "Vous ne pouvez pas modifier votre propre rôle."}
+          </p>
+        )}
+        <div className="bo__actions" style={{ marginTop: "0.8rem" }}>
+          <button className="gbtn" onClick={() => onSave(f)}>💾 Enregistrer</button>
+          <button className="gbtn gbtn--ghost" onClick={onCancel}>Annuler</button>
+        </div>
+      </div>
     </div>
   );
+}
+
+// -------------------------------------------------------------------- Commun
+
+function isAuthError(e) {
+  const m = String(e.message);
+  return m.includes("401") || m.includes("403") || m.toLowerCase().includes("jwt");
 }
 
 function Login({ onOk, onQuit }) {

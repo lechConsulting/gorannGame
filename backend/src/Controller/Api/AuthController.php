@@ -24,6 +24,7 @@ class AuthController extends AbstractController
         EntityManagerInterface $em,
         UserPasswordHasherInterface $hasher,
         ValidatorInterface $validator,
+        string $superAdminEmail,
     ): JsonResponse {
         $data = json_decode($request->getContent(), true) ?? [];
 
@@ -39,9 +40,12 @@ class AuthController extends AbstractController
         $user->setEmail($email);
         $user->setPseudo($pseudo);
 
-        // Le tout premier utilisateur devient administrateur.
+        // Par défaut, tout nouveau compte est JOUEUR (rôles vides ; ROLE_JOUEUR
+        // est ajouté à la volée par User::getRoles()). Deviennent ADMIN : le
+        // tout premier compte (amorçage) et le super-admin configuré.
         $isFirstUser = $em->getRepository(User::class)->count([]) === 0;
-        $user->setRoles($isFirstUser ? [User::ROLE_ADMIN] : []);
+        $isSuperAdmin = strcasecmp($email, $superAdminEmail) === 0;
+        $user->setRoles($isFirstUser || $isSuperAdmin ? [User::ROLE_ADMIN] : []);
 
         $errors = $validator->validate($user);
         if (\count($errors) > 0) {

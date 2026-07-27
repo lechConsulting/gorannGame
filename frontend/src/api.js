@@ -141,4 +141,10 @@ export const api = {
   adminUpdateCard: (id, card) => req("PUT", `/api/admin/cards/${id}`, card, true),
   adminDeleteCard: (id) => req("DELETE", `/api/admin/cards/${id}`, null, true),
   adminHeroes: (slug = "lotr-deck-builder") => req("GET", `/api/admin/heroes?game=${slug}`, null, true),
+
+  // Back-office — gestion des utilisateurs (ROLE_ADMIN)
+  adminUsers: () => req("GET", "/api/admin/users", null, true),
+  adminCreateUser: (user) => req("POST", "/api/admin/users", user, true),
+  adminUpdateUser: (id, patch) => req("PATCH", `/api/admin/users/${id}`, patch, true),
+  adminDeleteUser: (id) => req("DELETE", `/api/admin/users/${id}`, null, true),
 };
