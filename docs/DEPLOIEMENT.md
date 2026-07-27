@@ -149,13 +149,32 @@ et la redirection HTTP→HTTPS, et programme le renouvellement automatique.
 
 ## 9. Mettre à jour l'appli (après un `git push`)
 
+**En une seule commande** (recommandé) :
+
+```bash
+/opt/gorann/deploy/update.sh
+```
+
+Le script enchaîne : `git pull` → rebuild & redémarrage Docker → attente que le
+backend soit prêt (les migrations s'appliquent au démarrage) → promotion du
+super-admin (idempotente). Il s'arrête avec un message clair si `deploy/.env`
+manque ou si le backend ne répond pas.
+
+<details>
+<summary>Équivalent manuel</summary>
+
 ```bash
 cd /opt/gorann
 git pull
 docker compose --env-file deploy/.env -f compose.prod.yaml up -d --build
+# une fois le conteneur php prêt (migrations appliquées) :
+docker compose --env-file deploy/.env -f compose.prod.yaml exec php php bin/console app:promote-super-admin
 ```
 
 Les migrations éventuelles s'appliquent toutes seules au redémarrage du conteneur `php`.
+</details>
+
+> 💾 S'il y a des migrations, pense à sauvegarder la base avant (voir §10).
 
 ---
 
