@@ -34,10 +34,15 @@ export default function GroupAmbushAlert({ data, busy, onReveal, onClose }) {
                 </>
               )}
 
-              {/* Carte révélée (une fois faite) */}
-              {p.revealed && (p.card
-                ? <GameCard card={p.card} size="sm" />
-                : <div className="ga-block__none">{data.auto ? "a révélé sa main" : "(aucune carte à révéler)"}</div>)}
+              {/* Carte révélée. Révélation SIMULTANÉE : la carte des autres reste
+                  cachée (dos) jusqu'à la résolution — on ne peut pas s'adapter. */}
+              {p.revealed && (
+                p.card
+                  ? <GameCard card={p.card} size="sm" />
+                  : p.hasRevealed
+                    ? <div className="ga-hidden" title="Révélation simultanée : visible à la résolution">🂠 a révélé (caché)</div>
+                    : <div className="ga-block__none">{data.auto ? "a révélé sa main" : "(aucune carte à révéler)"}</div>
+              )}
               {!p.revealed && !p.isMe && <div className="ga-block__wait">en attente de {p.pseudo}…</div>}
 
               {/* Issue de l'embuscade */}

@@ -346,6 +346,12 @@
 .ga-block__todo { font-size: 0.82rem; color: #ffd94a; margin-bottom: 0.3rem; }
 .ga-block__wait { font-size: 0.82rem; opacity: 0.6; font-style: italic; }
 .ga-block__none { font-size: 0.8rem; opacity: 0.6; }
+.ga-hidden {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.82rem; font-weight: 700; color: #cbb98a;
+  background: repeating-linear-gradient(45deg, #2a2f3a, #2a2f3a 6px, #232833 6px, #232833 12px);
+  border: 1px solid rgba(233,216,166,0.35); border-radius: 8px; padding: 0.5rem 0.7rem;
+}
 .ga-block__out { margin-top: 0.4rem; font-size: 0.85rem; color: #ff9b8a; font-weight: 700; }
 .ga-block__ok { margin-top: 0.4rem; font-size: 0.85rem; color: #9be0b4; }
 .bot-delay { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: #b7a97f; }

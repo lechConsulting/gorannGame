@@ -161,18 +161,24 @@ class StateView
         if ($ga === null) {
             return null;
         }
+        $done = !empty($ga['done']);
         $players = [];
         foreach ($state['players'] as $p) {
             $seat = $p['seat'];
+            $isMe = $viewerSeat !== null && $seat === $viewerSeat;
             $revealedIid = $ga['reveals'][$seat] ?? null;
+            // Révélation SIMULTANÉE : on ne montre la carte d'un autre joueur
+            // qu'à la résolution (done). Le viewer voit sa propre carte.
+            $showCard = $revealedIid !== null && ($isMe || $done);
             $players[] = [
                 'seat' => $seat,
                 'pseudo' => $p['pseudo'],
                 'kind' => $p['kind'] ?? 'human',
-                'isMe' => $viewerSeat !== null && $seat === $viewerSeat,
+                'isMe' => $isMe,
                 'revealed' => \array_key_exists($seat, $ga['reveals']),
-                'card' => $revealedIid !== null ? $this->cardDef($this->engine->def($state, $revealedIid)) : null,
-                'outcome' => $ga['outcomes'][$seat] ?? [],
+                'hasRevealed' => $revealedIid !== null, // a bien révélé une carte (mais peut être cachée)
+                'card' => $showCard ? $this->cardDef($this->engine->def($state, $revealedIid)) : null,
+                'outcome' => $done ? ($ga['outcomes'][$seat] ?? []) : [],
             ];
         }
         // Le viewer doit-il révéler ? (effet groupReveal sur son siège)
