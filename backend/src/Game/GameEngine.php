@@ -591,29 +591,34 @@ class GameEngine
         }
         $outcomes = [];
         if (!empty($costs)) {
-            $min = min($costs);
-            $max = max($costs);
-            foreach ($costs as $seat => $c) {
-                $player = &$this->playerRefBySeat($state, $seat);
-                if ($c === $min) {
-                    for ($k = 0; $k < 3; ++$k) {
-                        $this->gainCorruption($state, $player);
+            if (($ga['code'] ?? '') === 'troll-des-cavernes') {
+                // Troll des Cavernes : détruit chaque carte révélée dont le coût
+                // est PARTAGÉ par au moins une autre carte révélée.
+                $counts = array_count_values($costs);
+                foreach ($costs as $seat => $c) {
+                    if (($counts[$c] ?? 0) >= 2) {
+                        $this->destroyRevealedCard($state, $ga, $seat, $outcomes);
                     }
-                    $outcomes[$seat][] = ['type' => 'corruption', 'n' => 3];
-                    $this->log($state, sprintf('%s (coût révélé le + bas : %d) prend 3 Corruptions.', $player['pseudo'], $min));
                 }
-                if ($c === $max) {
-                    $riid = $ga['reveals'][$seat];
-                    $rname = $this->def($state, $riid)['name'];
-                    $hp = array_search($riid, $player['hand'], true);
-                    if ($hp !== false) {
-                        array_splice($player['hand'], $hp, 1);
-                        $player['destroyed'][] = $riid;
+            } else {
+                // Saroumane (et repli par défaut) : coût le + bas → 3 Corruptions ;
+                // coût le + haut → détruit sa carte révélée.
+                $min = min($costs);
+                $max = max($costs);
+                foreach ($costs as $seat => $c) {
+                    if ($c === $min) {
+                        $player = &$this->playerRefBySeat($state, $seat);
+                        for ($k = 0; $k < 3; ++$k) {
+                            $this->gainCorruption($state, $player);
+                        }
+                        $outcomes[$seat][] = ['type' => 'corruption', 'n' => 3];
+                        $this->log($state, sprintf('%s (coût révélé le + bas : %d) prend 3 Corruptions.', $player['pseudo'], $min));
+                        unset($player);
                     }
-                    $outcomes[$seat][] = ['type' => 'destroy', 'card' => $rname];
-                    $this->log($state, sprintf('%s (coût révélé le + haut : %d) détruit sa carte révélée (%s).', $player['pseudo'], $max, $rname));
+                    if ($c === $max) {
+                        $this->destroyRevealedCard($state, $ga, $seat, $outcomes);
+                    }
                 }
-                unset($player);
             }
         }
         // On CONSERVE l'embuscade (marquée résolue) pour l'affichage des issues à tous.
@@ -624,6 +629,25 @@ class GameEngine
         // Ce n'est qu'APRÈS l'Embuscade de Groupe que débute réellement le tour
         // suivant (Lieux activables + embuscades normales différées).
         $this->startDeferredTurn($state);
+    }
+
+    /** Retire de la main du siège sa carte révélée et la détruit (pile destroyed). */
+    private function destroyRevealedCard(array &$state, array $ga, int $seat, array &$outcomes): void
+    {
+        $riid = $ga['reveals'][$seat] ?? null;
+        if ($riid === null) {
+            return;
+        }
+        $player = &$this->playerRefBySeat($state, $seat);
+        $rname = $this->def($state, $riid)['name'];
+        $hp = array_search($riid, $player['hand'], true);
+        if ($hp !== false) {
+            array_splice($player['hand'], $hp, 1);
+            $player['destroyed'][] = $riid;
+        }
+        $outcomes[$seat][] = ['type' => 'destroy', 'card' => $rname];
+        $this->log($state, sprintf('%s : carte révélée détruite (%s).', $player['pseudo'], $rname));
+        unset($player);
     }
 
     /** Effet automatique d'une Embuscade (quand elle n'est pas évitée par une Défense). */

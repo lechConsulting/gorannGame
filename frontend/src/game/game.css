@@ -157,6 +157,8 @@
   background: #1a1e26; border: 2px solid #e9d8a6; border-radius: 14px;
   padding: 1.2rem 1.4rem; max-width: 900px; width: 100%;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  /* Filet de sécurité : aucune modale ne dépasse l'écran → scroll possible. */
+  max-height: calc(100dvh - 2.4rem); overflow-y: auto;
 }
 .modal--card { max-width: 420px; display: flex; flex-direction: column; align-items: center; }
 
@@ -426,3 +428,10 @@
 .seat__level--facile { color: #9be0b4; }
 .seat__level--normal { color: #e9d8a6; }
 .seat__level--difficile { color: #ff9b8a; }
+
+/* Description de règles d'un effet (ce que fait l'embuscade/l'attaque subie) */
+.effect-row__desc {
+  margin: 0 0 0.5rem; font-size: 0.85rem; line-height: 1.35;
+  color: #d7c9a0; background: rgba(255,255,255,0.04);
+  border-left: 3px solid #b7a97f; border-radius: 4px; padding: 0.35rem 0.6rem;
+}

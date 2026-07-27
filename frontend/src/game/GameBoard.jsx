@@ -412,22 +412,18 @@ export default function GameBoard({ session, onQuit }) {
         </button>
       </div>
 
-      {/* Lieux en jeu (permanents) — lisibles */}
-      {me.inPlay.length > 0 && (
+      {/* Cartes jouées ce tour (gauche) + Lieux permanents (droite) sur la MÊME
+          ligne : le retour à la ligne ne se produit qu'au-delà de 5 cartes. */}
+      {(me.played.length > 0 || me.inPlay.length > 0) && (
         <div className="zone">
-          <div className="zone__label">Tes Lieux (permanents)</div>
-          <div className="row">
-            {me.inPlay.map((c) => <GameCard key={c.iid} card={c} size="md" hideAmbush permanentOnly />)}
+          <div className="zone__label">
+            {me.played.length > 0 && `Cartes jouées ce tour (${me.played.length})`}
+            {me.played.length > 0 && me.inPlay.length > 0 && " · "}
+            {me.inPlay.length > 0 && "Lieux permanents"}
           </div>
-        </div>
-      )}
-
-      {/* Cartes jouées ce tour (pour se remémorer les effets) */}
-      {me.played.length > 0 && (
-        <div className="zone">
-          <div className="zone__label">Cartes jouées ce tour ({me.played.length})</div>
           <div className="row">
-            {me.played.map((c, i) => <GameCard key={`${c.iid}-${i}`} card={c} size="md" hideAmbush muted />)}
+            {me.played.map((c, i) => <GameCard key={`played-${c.iid}-${i}`} card={c} size="md" hideAmbush muted />)}
+            {me.inPlay.map((c) => <GameCard key={`lieu-${c.iid}`} card={c} size="md" hideAmbush permanentOnly />)}
           </div>
         </div>
       )}
@@ -553,17 +549,17 @@ export default function GameBoard({ session, onQuit }) {
       {/* Modal : liste d'effets à appliquer */}
       {effects.length > 0 && showEffects && (
         <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal__head">
+          <div className="modal" style={{ display: "flex", flexDirection: "column" }}>
+            <div className="modal__head" style={{ flex: "0 0 auto" }}>
               <h3>⚡ Effets à appliquer ({effects.length})</h3>
               <button className="gbtn gbtn--ghost" onClick={() => setShowEffects(false)}>Plus tard</button>
             </div>
             {mandatoryLeft && (
-              <p style={{ color: "#ff9b8a", fontSize: "0.85rem", margin: "0 0 0.6rem" }}>
+              <p style={{ color: "#ff9b8a", fontSize: "0.85rem", margin: "0 0 0.6rem", flex: "0 0 auto" }}>
                 Les effets ⚠️ obligatoires doivent être appliqués avant de finir ton tour.
               </p>
             )}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem", maxHeight: "72vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem", overflowY: "auto", minHeight: 0, flex: "1 1 auto" }}>
               {effects.map((e) => (
                 <div key={e.eid} className="effect-row">
                   <div className="effect-row__head">
@@ -573,6 +569,7 @@ export default function GameBoard({ session, onQuit }) {
                     <strong>{e.label}</strong>
                     <span style={{ opacity: 0.6, fontSize: "0.8rem" }}>({e.sourceName})</span>
                   </div>
+                  {e.desc && <p className="effect-row__desc">{e.desc}</p>}
                   {!e.applicable ? (
                     <div className="controls">
                       <span style={{ opacity: 0.6, alignSelf: "center" }}>Non applicable</span>

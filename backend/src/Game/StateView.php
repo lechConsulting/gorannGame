@@ -331,10 +331,47 @@ class StateView
             if ($e['op'] === 'revealCards' && !empty($e['cards'])) {
                 $entry['cards'] = $e['cards']; // [{...def, gained}]
             }
+            // Embuscade/Attaque auto : joindre la clause de règles de la carte
+            // source (ce que l'effet fait), sinon le joueur « subit » à l'aveugle.
+            if (\in_array($e['op'], ['ambushAuto', 'attack'], true)) {
+                $code = $e['source'] ?? $e['code'] ?? null;
+                if ($code !== null && $this->catalog->has($code)) {
+                    $desc = $this->clauseText($this->catalog->card($code)['text'] ?? '', $e['op'] === 'attack' ? 'Attaque' : 'Embuscade');
+                    if ($desc !== '') {
+                        $entry['desc'] = $desc;
+                    }
+                }
+            }
             $out[] = $entry;
         }
 
         return $out;
+    }
+
+    /**
+     * Extrait la clause « Attaque : … » ou « Embuscade : … » du texte d'une carte
+     * (ce que fait l'effet), pour l'afficher au joueur qui va le subir.
+     */
+    private function clauseText(string $text, string $keyword): string
+    {
+        $pos = mb_stripos($text, $keyword);
+        if ($pos === false) {
+            return '';
+        }
+        $after = mb_substr($text, $pos + mb_strlen($keyword));
+        $colon = mb_strpos($after, ':');
+        if ($colon !== false) {
+            $after = mb_substr($after, $colon + 1);
+        }
+        // S'arrête à la clause suivante éventuelle (une carte peut cumuler Attaque + Embuscade).
+        foreach (['Attaque', 'Embuscade'] as $stop) {
+            $sp = mb_stripos($after, $stop);
+            if ($sp !== false && $sp > 0) {
+                $after = mb_substr($after, 0, $sp);
+            }
+        }
+
+        return trim($after);
     }
 
     /**
