@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gesdinet\JWTRefreshTokenBundle\Entity\RefreshTokenRepository;
 use Gesdinet\JWTRefreshTokenBundle\Model\AbstractRefreshToken;
 
 /**
@@ -13,7 +14,7 @@ use Gesdinet\JWTRefreshTokenBundle\Model\AbstractRefreshToken;
  * Le mapping est déclaré ici en attributs (le bundle ne l'enregistre pas
  * automatiquement) plutôt que de dépendre de la superclasse XML du bundle.
  */
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: RefreshTokenRepository::class)]
 #[ORM\Table(name: 'refresh_tokens')]
 class RefreshToken extends AbstractRefreshToken
 {
