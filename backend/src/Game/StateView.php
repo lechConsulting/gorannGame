@@ -184,14 +184,16 @@ class StateView
                 'outcome' => ($done || $mode === 'guessCost') ? ($ga['outcomes'][$seat] ?? []) : [],
             ];
         }
-        // Le viewer a-t-il une action en attente ? (groupReveal ou guessCost sur son siège)
+        // Le viewer a-t-il une action en attente sur son siège ?
         $myEid = null;
         $myOp = null;
         $myOptions = [];
+        $myCount = 0;
         if ($viewerSeat !== null) {
             foreach ($state['effects'] as $e) {
                 $op = $e['op'] ?? '';
-                if (($op === 'groupReveal' || $op === 'guessCost') && ($e['seat'] ?? $state['activeSeat']) === $viewerSeat) {
+                if (\in_array($op, ['groupReveal', 'guessCost', 'nameCost', 'distributeCorruption'], true)
+                    && ($e['seat'] ?? $state['activeSeat']) === $viewerSeat) {
                     $myEid = $e['eid'];
                     $myOp = $op;
                     if ($op === 'groupReveal') {
@@ -204,13 +206,17 @@ class StateView
                             }
                         }
                     }
+                    if ($op === 'distributeCorruption') {
+                        $myCount = (int) ($e['count'] ?? 0);
+                    }
                     break;
                 }
             }
         }
 
         return ['name' => $ga['name'], 'text' => $ga['text'] ?? '', 'done' => $done, 'mode' => $mode,
-            'auto' => !empty($ga['auto']), 'players' => $players, 'myEid' => $myEid, 'myOp' => $myOp, 'myOptions' => $myOptions];
+            'auto' => !empty($ga['auto']), 'players' => $players, 'myEid' => $myEid, 'myOp' => $myOp,
+            'myOptions' => $myOptions, 'myCount' => $myCount];
     }
 
     /** Hydrate la révélation publique en cours (codes → cartes). */

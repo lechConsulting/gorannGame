@@ -445,24 +445,32 @@ class GameEngine
     {
         $player = &$this->active($state);
         $name = $this->catalog->card($code)['name'];
+        $seat = $player['seat'];
         $player['eventsThisTurn'][] = ['label' => sprintf('⚠️ Embuscade : %s', $name), 'code' => $code];
         $this->log($state, sprintf('⚠️ Embuscade de %s contre %s !', $name, $player['pseudo']));
+        unset($player);
+        $this->queueAmbushEffect($state, $code, $name, $seat);
+    }
 
-        // Toutes les Embuscades passent par la liste d'effets (obligatoires) et
-        // sont DÉFENDABLES : un joueur avec une carte Défense peut les éviter.
+    /**
+     * Met en file l'effet d'Embuscade d'un Ennemi pour un siège donné (défendable).
+     * Extrait d'applyAmbush pour pouvoir cibler d'AUTRES joueurs (Troupe d'Uruk-Haï).
+     */
+    private function queueAmbushEffect(array &$state, string $code, string $name, int $seat): void
+    {
         switch ($code) {
             case 'uruk-hai': // gagne une Corruption
-                $this->queueEffect($state, ['op' => 'corruption', 'kind' => 'neg', 'n' => 1, 'defendable' => true,
+                $this->queueEffect($state, ['op' => 'corruption', 'kind' => 'neg', 'n' => 1, 'defendable' => true, 'seat' => $seat,
                     'source' => $code, 'sourceName' => $name, 'label' => 'Embuscade : prends une Corruption']);
                 break;
 
             case 'eclaireurs-uruk-hai': // choisis et défausse 2 cartes
-                $this->queueEffect($state, ['op' => 'discard', 'kind' => 'neg', 'count' => 2, 'defendable' => true,
+                $this->queueEffect($state, ['op' => 'discard', 'kind' => 'neg', 'count' => 2, 'defendable' => true, 'seat' => $seat,
                     'source' => $code, 'sourceName' => $name, 'label' => 'Embuscade : défausse 2 cartes (au choix)']);
                 break;
 
             case 'grognement-uruk-hai': // choisis et défausse 1 carte
-                $this->queueEffect($state, ['op' => 'discard', 'kind' => 'neg', 'count' => 1, 'defendable' => true,
+                $this->queueEffect($state, ['op' => 'discard', 'kind' => 'neg', 'count' => 1, 'defendable' => true, 'seat' => $seat,
                     'source' => $code, 'sourceName' => $name, 'label' => 'Embuscade : défausse 1 carte (au choix)']);
                 break;
 
@@ -470,7 +478,7 @@ class GameEngine
             case 'spectres-de-anneau':  // défausse 2 cartes au hasard
             case 'ombres-spectres-anneau': // défausse chaque carte de coût 3
             case 'cavaliers-noirs':     // défausse les Ennemis Principaux en main
-                $this->queueEffect($state, ['op' => 'ambushAuto', 'kind' => 'neg', 'code' => $code, 'defendable' => true,
+                $this->queueEffect($state, ['op' => 'ambushAuto', 'kind' => 'neg', 'code' => $code, 'defendable' => true, 'seat' => $seat,
                     'source' => $code, 'sourceName' => $name, 'label' => 'Embuscade : '.$name]);
                 break;
         }
@@ -569,6 +577,190 @@ class GameEngine
                 $this->queueEffect($state, ['op' => 'guessCost', 'kind' => 'neg', 'seat' => $seat,
                     'source' => $code, 'sourceName' => $name,
                     'label' => sprintf('⚔️ %s : devine le coût (1-7) de la carte du dessus du deck', $name)]);
+                ++$queued;
+            }
+            if ($queued === 0) {
+                $this->finalizeGroupAmbush($state);
+            }
+
+            return;
+        }
+
+        // Fourmilière de la Moria : chaque joueur révèle sa main et défausse tous ses Artefacts.
+        if ($code === 'fourmiliere-de-la-moria') {
+            $state['groupAmbush']['auto'] = true;
+            $outcomes = [];
+            foreach ($state['players'] as $p) {
+                $seat = $p['seat'];
+                $state['groupAmbush']['reveals'][$seat] = null; // main révélée en entier
+                $player = &$this->playerRefBySeat($state, $seat);
+                $arts = array_values(array_filter($player['hand'], fn ($iid) => $this->def($state, $iid)['type'] === 'Artefact'));
+                foreach ($arts as $iid) {
+                    $pos = array_search($iid, $player['hand'], true);
+                    if ($pos !== false) {
+                        array_splice($player['hand'], $pos, 1);
+                        $player['discard'][] = $iid;
+                    }
+                }
+                if ($arts) {
+                    $labels = implode(', ', array_map(fn ($iid) => $this->def($state, $iid)['name'], $arts));
+                    $outcomes[$seat][] = ['type' => 'discard', 'card' => $labels, 'n' => \count($arts)];
+                    $this->log($state, sprintf('%s défausse %d Artefact(s) : %s (%s).', $player['pseudo'], \count($arts), $labels, $name));
+                }
+                unset($player);
+            }
+            $state['groupAmbush']['outcomes'] = $outcomes;
+            $this->finalizeGroupAmbush($state);
+
+            return;
+        }
+
+        // Le Guetteur de l'Eau : chacun défausse 1 carte au hasard ; celui ayant
+        // défaussé la carte au coût le plus élevé défausse 2 cartes de plus.
+        if ($code === 'guetteur-de-leau') {
+            $state['groupAmbush']['auto'] = true;
+            $outcomes = [];
+            $costBySeat = [];
+            foreach ($state['players'] as $p) {
+                $seat = $p['seat'];
+                $state['groupAmbush']['reveals'][$seat] = null;
+                $player = &$this->playerRefBySeat($state, $seat);
+                if (!empty($player['hand'])) {
+                    $ri = array_rand($player['hand']);
+                    $iid = $player['hand'][$ri];
+                    array_splice($player['hand'], $ri, 1);
+                    $player['discard'][] = $iid;
+                    $costBySeat[$seat] = (int) ($this->def($state, $iid)['cost'] ?? 0);
+                    $outcomes[$seat][] = ['type' => 'discard', 'card' => $this->def($state, $iid)['name'], 'n' => 1];
+                }
+                unset($player);
+            }
+            if (!empty($costBySeat)) {
+                $max = max($costBySeat);
+                foreach ($costBySeat as $seat => $c) {
+                    if ($c === $max) {
+                        $player = &$this->playerRefBySeat($state, $seat);
+                        $extra = 0;
+                        for ($k = 0; $k < 2 && !empty($player['hand']); ++$k) {
+                            $ri = array_rand($player['hand']);
+                            $iid = $player['hand'][$ri];
+                            array_splice($player['hand'], $ri, 1);
+                            $player['discard'][] = $iid;
+                            ++$extra;
+                        }
+                        if ($extra > 0) {
+                            $outcomes[$seat][] = ['type' => 'discardExtra', 'n' => $extra];
+                            $this->log($state, sprintf('%s (coût défaussé le + élevé : %d) défausse %d carte(s) de plus.', $player['pseudo'], $max, $extra));
+                        }
+                        unset($player);
+                    }
+                }
+            }
+            $state['groupAmbush']['outcomes'] = $outcomes;
+            $this->finalizeGroupAmbush($state);
+
+            return;
+        }
+
+        // Troupe d'Uruk-Haï : détruit tout le Chemin et le remplace ; chaque carte
+        // entrante ayant une Embuscade s'applique à TOUS les joueurs.
+        if ($code === 'troupe-uruk-hai') {
+            $state['groupAmbush']['auto'] = true;
+            foreach ($state['path'] as $iid) {
+                $state['removed'][] = $iid; // Chemin détruit (retiré du jeu)
+            }
+            $state['path'] = [];
+            $this->refillPath($state);
+            $this->log($state, sprintf('%s : le Chemin est détruit et remplacé.', $name));
+            $outcomes = [];
+            foreach ($state['players'] as $p) {
+                $state['groupAmbush']['reveals'][$p['seat']] = null;
+            }
+            // Chaque carte entrante avec Embuscade frappe TOUS les joueurs.
+            foreach ($state['path'] as $iid) {
+                $adef = $this->def($state, $iid);
+                if (!empty($adef['attributes']['ambush'])) {
+                    foreach ($state['players'] as $p) {
+                        $this->queueAmbushEffect($state, $adef['code'], $adef['name'], $p['seat']);
+                    }
+                    $this->log($state, sprintf('Embuscade de %s appliquée à tous les joueurs.', $adef['name']));
+                }
+            }
+            $state['groupAmbush']['outcomes'] = $outcomes;
+            // Les embuscades ainsi générées seront résolues par chaque joueur ; l'Embuscade
+            // de Groupe elle-même est considérée résolue (l'effet immédiat est fait).
+            $this->finalizeGroupAmbush($state);
+
+            return;
+        }
+
+        // Le Roi Sorcier : chaque joueur révèle sa main ; celui ayant le plus de
+        // Courage les détruit, pioche autant de Corruptions et les RÉPARTIT.
+        if ($code === 'roi-sorcier') {
+            $state['groupAmbush']['mode'] = 'distribute';
+            $outcomes = [];
+            $courageBySeat = [];
+            foreach ($state['players'] as $p) {
+                $seat = $p['seat'];
+                $state['groupAmbush']['reveals'][$seat] = null;
+                $n = 0;
+                foreach ($p['hand'] as $iid) {
+                    if ($this->def($state, $iid)['code'] === 'courage') {
+                        ++$n;
+                    }
+                }
+                $courageBySeat[$seat] = $n;
+            }
+            $maxCourage = empty($courageBySeat) ? 0 : max($courageBySeat);
+            if ($maxCourage > 0) {
+                // Vainqueur = 1er siège (ordre) ayant le max de Courage.
+                $winner = null;
+                foreach ($courageBySeat as $seat => $n) {
+                    if ($n === $maxCourage) {
+                        $winner = $seat;
+                        break;
+                    }
+                }
+                $wp = &$this->playerRefBySeat($state, $winner);
+                $destroyed = 0;
+                foreach (array_values($wp['hand']) as $iid) {
+                    if ($this->def($state, $iid)['code'] === 'courage') {
+                        $pos = array_search($iid, $wp['hand'], true);
+                        if ($pos !== false) {
+                            array_splice($wp['hand'], $pos, 1);
+                            $state['removed'][] = $iid;
+                            ++$destroyed;
+                        }
+                    }
+                }
+                $wpseudo = $wp['pseudo'];
+                unset($wp);
+                $outcomes[$winner][] = ['type' => 'destroy', 'card' => $destroyed.' Courage', 'n' => $destroyed];
+                $this->log($state, sprintf('%s a le plus de Courage (%d) : détruits, puis répartit %d Corruption(s).', $wpseudo, $destroyed, $destroyed));
+                $state['groupAmbush']['outcomes'] = $outcomes;
+                // Étape interactive : le vainqueur place $destroyed Corruptions.
+                $this->queueEffect($state, ['op' => 'distributeCorruption', 'kind' => 'neg', 'seat' => $winner,
+                    'count' => $destroyed, 'source' => $code, 'sourceName' => $name,
+                    'label' => sprintf('%s : répartis %d Corruption(s) entre les joueurs', $name, $destroyed)]);
+            } else {
+                $state['groupAmbush']['outcomes'] = $outcomes;
+                $this->finalizeGroupAmbush($state);
+            }
+
+            return;
+        }
+
+        // Lurtz : chaque joueur nomme un coût (1-7) puis révèle une carte au hasard
+        // de sa main ; si le coût révélé ne correspond pas → défausse toute sa main.
+        if ($code === 'lurtz') {
+            $state['groupAmbush']['mode'] = 'nameCost';
+            $n = \count($state['players']);
+            $queued = 0;
+            for ($k = 0; $k < $n; ++$k) {
+                $seat = ($state['activeSeat'] + $k) % $n;
+                $this->queueEffect($state, ['op' => 'nameCost', 'kind' => 'neg', 'seat' => $seat,
+                    'source' => $code, 'sourceName' => $name,
+                    'label' => sprintf('%s : nomme un coût (1-7)', $name)]);
                 ++$queued;
             }
             if ($queued === 0) {
@@ -1030,6 +1222,76 @@ class GameEngine
                         }
                     }
                     $this->finalizeGroupAmbush($state, $revealed);
+
+                    return;
+                }
+                break;
+            case 'nameCost': // Lurtz : nomme un coût, révèle une carte au hasard de la main
+                if (empty($state['groupAmbush'])) {
+                    break;
+                }
+                $named = (int) ($payload['guess'] ?? 0);
+                if (!empty($player['hand'])) {
+                    $ri = array_rand($player['hand']);
+                    $riid = $player['hand'][$ri];
+                    $rcost = (int) ($this->def($state, $riid)['cost'] ?? 0);
+                    $rname = $this->def($state, $riid)['name'];
+                    $state['groupAmbush']['reveals'][$seat] = $riid;
+                    if ($named === $rcost) {
+                        $state['groupAmbush']['outcomes'][$seat][] = ['type' => 'safe', 'guess' => $named, 'cost' => $rcost, 'card' => $rname];
+                        $this->log($state, sprintf('%s nomme %d = coût %d (%s) : main épargnée.', $player['pseudo'], $named, $rcost, $rname));
+                    } else {
+                        $discarded = \count($player['hand']);
+                        foreach ($player['hand'] as $hiid) {
+                            $player['discard'][] = $hiid;
+                        }
+                        $player['hand'] = [];
+                        $state['groupAmbush']['outcomes'][$seat][] = ['type' => 'discardHand', 'guess' => $named, 'cost' => $rcost, 'card' => $rname, 'n' => $discarded];
+                        $this->log($state, sprintf('%s nomme %d ≠ coût %d (%s) : défausse toute sa main (%d).', $player['pseudo'], $named, $rcost, $rname, $discarded));
+                    }
+                } else {
+                    $state['groupAmbush']['reveals'][$seat] = null;
+                }
+                $remaining = 0;
+                foreach ($state['effects'] as $ge) {
+                    if (($ge['op'] ?? '') === 'nameCost' && $ge['eid'] !== $eid) {
+                        ++$remaining;
+                    }
+                }
+                if ($remaining === 0) {
+                    array_splice($state['effects'], $idx, 1);
+                    $revealed = [];
+                    foreach ($state['groupAmbush']['reveals'] as $riid2) {
+                        if ($riid2 !== null) {
+                            $revealed[] = $this->def($state, $riid2)['code'];
+                        }
+                    }
+                    $this->finalizeGroupAmbush($state, $revealed);
+
+                    return;
+                }
+                break;
+            case 'distributeCorruption': // Roi Sorcier : le vainqueur place 1 Corruption sur un joueur
+                if (empty($state['groupAmbush'])) {
+                    break;
+                }
+                $tseat = (int) ($payload['seat'] ?? -1);
+                if ($this->playerBySeat($state, $tseat) === null) {
+                    $tseat = $seat; // sécurité : à défaut, sur soi
+                }
+                $target = &$this->playerRefBySeat($state, $tseat);
+                $this->gainCorruption($state, $target);
+                $tpseudo = $target['pseudo'];
+                unset($target);
+                $state['groupAmbush']['outcomes'][$tseat][] = ['type' => 'corruption', 'n' => 1];
+                $this->log($state, sprintf('%s reçoit 1 Corruption (Roi Sorcier).', $tpseudo));
+                $step['count'] = (int) ($step['count'] ?? 1) - 1;
+                if ($step['count'] > 0) {
+                    $remove = false;
+                    $state['effects'][$idx] = $step;
+                } else {
+                    array_splice($state['effects'], $idx, 1);
+                    $this->finalizeGroupAmbush($state);
 
                     return;
                 }

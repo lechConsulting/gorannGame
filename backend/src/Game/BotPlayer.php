@@ -121,7 +121,15 @@ class BotPlayer
     {
         switch ($step['op']) {
             case 'guessCost': // Ulaire Nelya : devine un coût au hasard (1-7)
+            case 'nameCost':  // Lurtz : nomme un coût au hasard (1-7)
                 return ['guess' => random_int(1, 7)];
+
+            case 'distributeCorruption': // Roi Sorcier : place une Corruption sur un adversaire
+                $self = $step['seat'] ?? $state['activeSeat'];
+                $others = array_values(array_filter($state['players'], fn ($p) => $p['seat'] !== $self));
+                $target = !empty($others) ? $others[array_rand($others)] : $state['players'][0];
+
+                return ['seat' => $target['seat']];
 
             case 'nameType':
             case 'nameTypeMain':

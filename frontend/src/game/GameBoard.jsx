@@ -256,6 +256,7 @@ export default function GameBoard({ session, onQuit }) {
           busy={busy}
           onReveal={(eid, iid) => applyEff(eid, { iid })}
           onGuess={(eid, guess) => applyEff(eid, { guess })}
+          onDistribute={(eid, seat) => applyEff(eid, { seat })}
           onClose={() => setGaDismissed(true)}
         />
       )}
