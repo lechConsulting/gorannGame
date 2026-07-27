@@ -4,7 +4,7 @@ import { emojiFor, artFor } from "../cardArt";
 
 // Carte de jeu (forme API : {code,name,type,cost,pv,text,...}).
 // Anatomie corrigée : PV = rond doré (bas gauche), COÛT = rond gris (bas droite).
-export default function GameCard({ card, size = "md", onClick, disabled, badge, hideAmbush = false, muted = false, permanentOnly = false }) {
+export default function GameCard({ card, size = "md", onClick, disabled, badge, hideAmbush = false, muted = false, permanentOnly = false, actions = null }) {
   const style = TYPE_STYLES[card.type] ?? TYPE_STYLES.Chance;
   const emoji = emojiFor(card);
   const { hueShift, runes } = artFor(card);
@@ -60,6 +60,22 @@ export default function GameCard({ card, size = "md", onClick, disabled, badge, 
       {card.pv == null && card.attributes?.questVP && <div className="gcard__pv gcard__pv--quest" title="PV variable (Quête)">✱</div>}
       {card.cost != null && <div className="gcard__cost" title="Coût">{card.cost}</div>}
       {card.cost == null && card.attributes?.specialCost && <div className="gcard__cost gcard__cost--quest" title="Coût spécial">✱</div>}
+      {actions && actions.length > 0 && (
+        <div className="gcard__actions">
+          {actions.map((a, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`gcard__act ${a.className ?? ""}`}
+              title={a.title}
+              disabled={a.disabled}
+              onClick={(e) => { e.stopPropagation(); a.onClick(); }}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -19,6 +19,13 @@
 .board__title { margin: 0; color: #e9d8a6; font-size: 1.2rem; }
 .board__turn { opacity: 0.8; font-size: 0.9rem; }
 
+/* Haut du plateau : infos/actions des autres joueurs à gauche, piles à droite */
+.board__head { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; margin-bottom: 0.4rem; }
+.board__head-info { flex: 1 1 340px; min-width: 280px; display: flex; flex-direction: column; }
+.board__head-info > * { margin-top: 0; }
+.board__head-piles { flex: 0 0 auto; }
+.zone--piles { margin: 0; }
+
 .zone { margin: 0.9rem 0; }
 .zone__label {
   font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase;
@@ -77,6 +84,23 @@
 .gcard--xl .gcard__cost { right: 10px; } .gcard--xl .gcard__pv { left: 10px; }
 .gcard--clickable { cursor: pointer; }
 .gcard--disabled { opacity: 0.55; filter: grayscale(0.4); }
+
+/* Boutons d'action sur une carte (main : Jouer / Agrandir) — révélés au survol */
+.gcard__actions {
+  position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 0.5rem;
+  background: rgba(12,14,18,0.66); opacity: 0; transition: opacity 0.15s ease;
+}
+.gcard:hover .gcard__actions, .gcard__actions:focus-within { opacity: 1; }
+.gcard__act {
+  font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  padding: 0.4rem 0.7rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.12); color: #f4efe3; min-width: 76%;
+}
+.gcard__act:hover:not(:disabled) { background: rgba(255,255,255,0.22); }
+.gcard__act:disabled { opacity: 0.5; cursor: not-allowed; }
+.gcard__act--play { background: linear-gradient(180deg, #d9bf6a, #b9992f); color: #1c1a16; border-color: #d9bf6a; }
+.gcard__act--play:hover:not(:disabled) { background: linear-gradient(180deg, #e6cd78, #c7a638); }
 .gcard--muted { filter: grayscale(0.55) brightness(0.78); opacity: 0.9; }
 .gcard--muted.gcard--clickable:hover { filter: grayscale(0.1) brightness(1); opacity: 1; }
 

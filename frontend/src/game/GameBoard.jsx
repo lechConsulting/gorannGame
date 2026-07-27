@@ -200,6 +200,10 @@ export default function GameBoard({ session, onQuit }) {
         />
       )}
 
+      {/* Haut du plateau : infos/actions des autres joueurs (gauche) +
+          Ennemi Principal & piles compactes (droite) */}
+      <div className="board__head">
+        <div className="board__head-info">
       {/* Adversaires (mains cachées : compteurs seulement) */}
       {opponents.length > 0 && (
         <div className="opponents">
@@ -280,34 +284,38 @@ export default function GameBoard({ session, onQuit }) {
         </div>
       )}
 
-      {/* Ennemi Principal · (espace) · Valeur · Corruption */}
-      <div className="zone">
-        <div className="zone__label">Ennemi Principal &amp; piles</div>
-        <div className="row">
-          {arch?.card && (
-            <GameCard
-              card={arch.card}
-              size="md"
-              badge={`×${arch.remaining}`}
-              onClick={!busy ? () => setPreview(arch.card) : undefined}
-              muted={!archAffordable}
-            />
-          )}
-          <div className="card-gap" aria-hidden="true" />
-          <GameCard
-            card={state.stacks.valorCard}
-            size="md"
-            badge={`×${state.stacks.valor}`}
-            onClick={isMyTurn && !busy && power >= state.stacks.valorCard.cost && state.stacks.valor > 0 ? () => act("buy-valor") : undefined}
-            disabled={!isMyTurn || power < state.stacks.valorCard.cost || state.stacks.valor <= 0}
-          />
-          <GameCard
-            card={state.stacks.corruptionCard}
-            size="md"
-            badge={`×${state.stacks.corruption}`}
-          />
-        </div>
-      </div>
+        </div>{/* /board__head-info */}
+
+        <div className="board__head-piles">
+          {/* Ennemi Principal · Valeur · Corruption (compact, en haut à droite) */}
+          <div className="zone zone--piles">
+            <div className="zone__label">Ennemi Principal &amp; piles</div>
+            <div className="row">
+              {arch?.card && (
+                <GameCard
+                  card={arch.card}
+                  size="sm"
+                  badge={`×${arch.remaining}`}
+                  onClick={!busy ? () => setPreview(arch.card) : undefined}
+                  muted={!archAffordable}
+                />
+              )}
+              <GameCard
+                card={state.stacks.valorCard}
+                size="sm"
+                badge={`×${state.stacks.valor}`}
+                onClick={isMyTurn && !busy && power >= state.stacks.valorCard.cost && state.stacks.valor > 0 ? () => act("buy-valor") : undefined}
+                disabled={!isMyTurn || power < state.stacks.valorCard.cost || state.stacks.valor <= 0}
+              />
+              <GameCard
+                card={state.stacks.corruptionCard}
+                size="sm"
+                badge={`×${state.stacks.corruption}`}
+              />
+            </div>
+          </div>
+        </div>{/* /board__head-piles */}
+      </div>{/* /board__head */}
 
       {/* Deck principal + Chemin sur la même ligne */}
       <div className="zone">
@@ -348,6 +356,9 @@ export default function GameBoard({ session, onQuit }) {
       </div>
       <div className="controls">
         <button className="gbtn" disabled={busy || !isMyTurn || me.handCount === 0} onClick={() => act("play-all")}>▶️ Tout jouer</button>
+        {state.canUndo && (
+          <button className="gbtn gbtn--ghost" disabled={busy} title="Remet la dernière carte jouée dans ta main" onClick={() => act("undo-play")}>↩️ Reprendre la dernière carte</button>
+        )}
         {effects.length > 0 && !showEffects && (
           <button className="gbtn" onClick={() => setShowEffects(true)}>⚡ Effets à appliquer ({effects.length})</button>
         )}
@@ -388,7 +399,7 @@ export default function GameBoard({ session, onQuit }) {
 
       {/* Ta pioche & ta défausse + ta main */}
       <div className="zone">
-        <div className="zone__label">Ta pioche, ta défausse &amp; ta main — clique une carte de la main pour la jouer</div>
+        <div className="zone__label">Ta pioche, ta défausse &amp; ta main — survole une carte pour la Jouer ou l'Agrandir</div>
         <div className="row">
           <div className="deck-pile" title="Ta pioche (face cachée)">
             <span className="deck-pile__emoji">🂠</span>
@@ -420,7 +431,10 @@ export default function GameBoard({ session, onQuit }) {
                   card={c}
                   size="md"
                   hideAmbush
-                  onClick={!busy && isMyTurn ? () => act("play", c.iid) : undefined}
+                  actions={[
+                    { label: "▶️ Jouer", className: "gcard__act--play", disabled: busy || !isMyTurn, onClick: () => act("play", c.iid) },
+                    { label: "🔍 Agrandir", onClick: () => setCardView(c) },
+                  ]}
                 />
               ))}
             </AnimatePresence>

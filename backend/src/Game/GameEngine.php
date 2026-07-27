@@ -302,6 +302,7 @@ class GameEngine
         if ($state['status'] === 'finished') {
             return;
         }
+        unset($state['undo']); // plus d'annulation possible une fois le tour terminé
         // Un effet négatif obligatoire non résolu empêche de finir son tour.
         if ($this->hasMandatoryPending($state)) {
             throw new \RuntimeException('Tu dois d\'abord subir les effets obligatoires en attente.');
@@ -1565,6 +1566,44 @@ class GameEngine
         }
         --$state['stacks']['corruption'];
         $player['discard'][] = $this->newInstance($state, 'corruption');
+    }
+
+    // ------------------------------------------------------------ Annuler (undo)
+
+    /**
+     * Mémorise l'état complet AVANT de jouer une carte à l'unité, pour pouvoir
+     * remettre cette carte en main ensuite. On ne garde qu'un seul point d'annulation
+     * (la dernière carte jouée) et jamais pour « Tout jouer ».
+     */
+    public function snapshotBeforePlay(array &$state): void
+    {
+        $snapshot = $state;
+        unset($snapshot['undo']); // ne pas imbriquer les instantanés
+        $state['undo'] = [
+            'seat' => $state['activeSeat'] ?? -1,
+            'turn' => $state['turn'] ?? 0,
+            'snapshot' => $snapshot,
+        ];
+    }
+
+    /** Remet la dernière carte jouée en main en restaurant l'état d'avant le coup. */
+    public function undoLastPlay(array &$state): void
+    {
+        $this->assertActive($state);
+        $undo = $state['undo'] ?? null;
+        if ($undo === null
+            || ($undo['seat'] ?? -1) !== ($state['activeSeat'] ?? -1)
+            || ($undo['turn'] ?? -1) !== ($state['turn'] ?? -2)) {
+            throw new \RuntimeException('Aucune carte jouée à remettre en main.');
+        }
+        // L'instantané ne contient pas la clé 'undo' → l'annulation est consommée.
+        $state = $undo['snapshot'];
+    }
+
+    /** Invalide le point d'annulation (après un achat, un effet, la fin du tour…). */
+    public function clearUndo(array &$state): void
+    {
+        unset($state['undo']);
     }
 
     private function log(array &$state, string $msg): void

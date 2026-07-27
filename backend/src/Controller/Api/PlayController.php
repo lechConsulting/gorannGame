@@ -157,14 +157,18 @@ class PlayController extends AbstractController
 
         try {
             switch ($type) {
-                case 'play':       $this->engine->playCard($state, $iid); break;
-                case 'play-all':   $this->engine->playAll($state); break;
-                case 'buy-path':   $this->engine->buyFromPath($state, $iid); break;
-                case 'buy-valor':  $this->engine->buyValor($state); break;
-                case 'defeat':     $this->engine->defeatArchenemy($state); break;
+                // Instantané AVANT le coup : permet de remettre cette carte en main.
+                case 'play':       $this->engine->snapshotBeforePlay($state); $this->engine->playCard($state, $iid); break;
+                // Remet la dernière carte jouée à l'unité en main (pas après « Tout jouer »).
+                case 'undo-play':  $this->engine->undoLastPlay($state); break;
+                // « Tout jouer » et toute autre action invalident le point d'annulation.
+                case 'play-all':   $this->engine->clearUndo($state); $this->engine->playAll($state); break;
+                case 'buy-path':   $this->engine->clearUndo($state); $this->engine->buyFromPath($state, $iid); break;
+                case 'buy-valor':  $this->engine->clearUndo($state); $this->engine->buyValor($state); break;
+                case 'defeat':     $this->engine->clearUndo($state); $this->engine->defeatArchenemy($state); break;
                 case 'end-turn':   $this->engine->endTurn($state); break;
-                case 'apply-effect': $this->engine->applyEffect($state, (int) ($data['eid'] ?? 0), $data['payload'] ?? []); break;
-                case 'skip-effect':  $this->engine->skipEffect($state, (int) ($data['eid'] ?? 0)); break;
+                case 'apply-effect': $this->engine->clearUndo($state); $this->engine->applyEffect($state, (int) ($data['eid'] ?? 0), $data['payload'] ?? []); break;
+                case 'skip-effect':  $this->engine->clearUndo($state); $this->engine->skipEffect($state, (int) ($data['eid'] ?? 0)); break;
                 default:
                     return $this->json(['error' => 'Action inconnue : '.$type], 422);
             }

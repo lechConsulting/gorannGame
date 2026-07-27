@@ -92,8 +92,25 @@ class StateView
             // Cadence des bots : le client sait qui joue et dans combien de temps.
             'activeIsBot' => $this->activeIsBot($state),
             'botMsRemaining' => $this->botMsRemaining($state),
+            // Le viewer peut-il remettre sa dernière carte jouée en main ?
+            'canUndo' => $this->canUndo($state, $viewerSeat),
             'log' => \array_slice($state['log'], -30),
         ];
+    }
+
+    /**
+     * Vrai si le spectateur peut annuler son dernier coup : un point d'annulation
+     * existe, lui appartient, c'est son tour et le tour n'a pas changé.
+     */
+    private function canUndo(array $state, ?int $viewerSeat): bool
+    {
+        $undo = $state['undo'] ?? null;
+
+        return $undo !== null
+            && $viewerSeat !== null
+            && ($undo['seat'] ?? -1) === $viewerSeat
+            && ($state['activeSeat'] ?? -1) === $viewerSeat
+            && ($undo['turn'] ?? -1) === ($state['turn'] ?? -2);
     }
 
     /** Hydrate le récap : codes de cartes achetées → définitions, événements → carte liée. */
