@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { api, subscribe } from "../api";
 
+// Niveaux de difficulté des bots (facile = comportement historique).
+export const BOT_LEVELS = {
+  facile: { label: "Facile 😴" },
+  normal: { label: "Normal 🙂" },
+  difficile: { label: "Difficile 😈" },
+};
+
 // Salle d'attente d'une table. Affiche les sièges (humains/bots), permet de
 // choisir son héros, à l'hôte d'ajouter/retirer des joueurs automatiques, puis
 // de démarrer. Se met à jour en temps réel via Mercure (topic lobby/{id}), avec
@@ -104,6 +111,9 @@ export default function WaitingRoom({ lobbyId, initial, onStart, onLeave }) {
               {s.kind === "bot" ? "" : "🧑 "}{s.pseudo}
               {s.seat === 0 && <span className="seat__host"> · hôte</span>}
               {s.isMe && <span className="seat__you"> · toi</span>}
+              {s.kind === "bot" && s.level && (
+                <span className={`seat__level seat__level--${s.level}`}> · {BOT_LEVELS[s.level]?.label ?? s.level}</span>
+              )}
             </div>
             <div className="seat__hero">
               {s.hero || <em style={{ opacity: 0.6 }}>héros non choisi</em>}
@@ -122,6 +132,18 @@ export default function WaitingRoom({ lobbyId, initial, onStart, onLeave }) {
                   <option key={h.name} value={h.name} disabled={usedHeroes.includes(h.name) && h.name !== s.hero}>
                     {h.name}
                   </option>
+                ))}
+              </select>
+            )}
+            {lobby.isHost && s.kind === "bot" && (
+              <select
+                value={s.level || "normal"}
+                disabled={busy}
+                title="Niveau du bot"
+                onChange={(e) => call(() => api.lobbyBotLevel(lobbyId, s.seat, e.target.value))}
+              >
+                {Object.entries(BOT_LEVELS).map(([value, { label }]) => (
+                  <option key={value} value={value}>{label}</option>
                 ))}
               </select>
             )}

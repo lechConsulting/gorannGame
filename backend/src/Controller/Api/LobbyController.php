@@ -226,7 +226,35 @@ class LobbyController extends AbstractController
         if ($hero === null) {
             return $this->json(['error' => 'Plus de héros disponible.'], 409);
         }
-        $seats[] = ['kind' => 'bot', 'userId' => null, 'pseudo' => '🤖 '.$hero, 'hero' => $hero];
+        $seats[] = ['kind' => 'bot', 'userId' => null, 'pseudo' => '🤖 '.$hero, 'hero' => $hero, 'level' => 'normal'];
+        $session->setState($state);
+        $this->em->flush();
+        $this->publisher->pingLobby($session->getId());
+
+        return $this->json($this->lobbyView($session, $this->currentUser()));
+    }
+
+    /** L'hôte règle le niveau d'un bot. Body: { seat, level } (facile|normal|difficile) */
+    #[Route('/{id}/bot-level', name: 'api_lobby_bot_level', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function botLevel(int $id, Request $request): JsonResponse
+    {
+        [$session, $err] = $this->waitingSession($id, hostOnly: true);
+        if ($err) {
+            return $err;
+        }
+        $data = json_decode($request->getContent(), true) ?? [];
+        $seat = (int) ($data['seat'] ?? -1);
+        $level = (string) ($data['level'] ?? '');
+        if (!\in_array($level, ['facile', 'normal', 'difficile'], true)) {
+            return $this->json(['error' => 'Niveau invalide.'], 422);
+        }
+
+        $state = $session->getState();
+        $seats = &$state['lobby']['seats'];
+        if (!isset($seats[$seat]) || ($seats[$seat]['kind'] ?? 'human') !== 'bot') {
+            return $this->json(['error' => 'Ce siège n\'est pas un bot.'], 422);
+        }
+        $seats[$seat]['level'] = $level;
         $session->setState($state);
         $this->em->flush();
         $this->publisher->pingLobby($session->getId());
@@ -284,6 +312,7 @@ class LobbyController extends AbstractController
                 'pseudo' => $s['pseudo'],
                 'hero' => $s['hero'],
                 'kind' => $s['kind'] ?? 'human',
+                'level' => $s['level'] ?? 'facile',
             ], $seats));
         } catch (\Throwable $e) {
             return $this->json(['error' => $e->getMessage()], 422);
@@ -397,6 +426,7 @@ class LobbyController extends AbstractController
                 'kind' => $s['kind'] ?? 'human',
                 'pseudo' => $s['pseudo'],
                 'hero' => $s['hero'] ?? null,
+                'level' => ($s['kind'] ?? 'human') === 'bot' ? ($s['level'] ?? 'normal') : null,
                 'isMe' => $isMe,
             ];
         }

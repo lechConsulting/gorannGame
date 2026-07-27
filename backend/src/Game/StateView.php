@@ -29,6 +29,7 @@ class StateView
                 'seat' => $p['seat'],
                 'pseudo' => $p['pseudo'],
                 'kind' => $p['kind'] ?? 'human',
+                'level' => ($p['kind'] ?? 'human') === 'bot' ? ($p['level'] ?? 'facile') : null,
                 'isMe' => $viewerSeat !== null && $p['seat'] === $viewerSeat,
                 'hero' => $p['hero'],
                 'power' => $p['power'],

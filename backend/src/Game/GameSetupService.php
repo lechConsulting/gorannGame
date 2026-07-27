@@ -20,7 +20,7 @@ class GameSetupService
     }
 
     /**
-     * @param array<int, array{userId:?int, pseudo:string, hero:string, kind?:string}> $players
+     * @param array<int, array{userId:?int, pseudo:string, hero:string, kind?:string, level?:string}> $players
      */
     public function createState(array $players): array
     {
@@ -69,6 +69,7 @@ class GameSetupService
                 'seat' => $seat,
                 'userId' => $p['userId'] ?? null,
                 'kind' => $p['kind'] ?? 'human', // 'human' | 'bot'
+                'level' => $p['level'] ?? 'facile', // niveau du bot : facile | normal | difficile
                 'pseudo' => $p['pseudo'],
                 'hero' => $p['hero'],
                 'deck' => $deck,

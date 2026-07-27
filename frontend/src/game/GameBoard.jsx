@@ -5,6 +5,7 @@ import GameCard from "./GameCard";
 import Tutorial from "./Tutorial";
 import GuidedTour from "./GuidedTour";
 import GroupAmbushAlert from "./GroupAmbushAlert";
+import { BOT_LEVELS } from "./WaitingRoom";
 
 // Étapes de la visite guidée : chaque cible pointe vers un attribut data-tour
 // posé sur une zone du plateau. Les zones absentes sont ignorées à l'exécution.
@@ -244,7 +245,7 @@ export default function GameBoard({ session, onQuit }) {
           {opponents.map((p) => (
             <div key={p.seat} className={`opp ${p.seat === state.activeSeat ? "opp--active" : ""}`}>
               <div className="opp__n">{p.kind === "bot" ? "" : "🧑 "}{p.pseudo}</div>
-              <div className="opp__h">{p.hero}</div>
+              <div className="opp__h">{p.hero}{p.level ? ` · ${BOT_LEVELS[p.level]?.label ?? p.level}` : ""}</div>
               <div className="opp__stats">
                 <span>✋ {p.handCount}</span>
                 <span>🂠 {p.deckCount}</span>

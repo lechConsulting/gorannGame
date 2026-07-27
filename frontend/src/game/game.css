@@ -420,3 +420,9 @@
 .tour__btns { display: flex; gap: 0.4rem; align-items: center; }
 .tour__btns .gbtn { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
 .tour__skip { opacity: 0.75; }
+
+/* ---- Niveaux de bot -------------------------------------------------------- */
+.seat__level { font-size: 0.7rem; font-weight: 800; }
+.seat__level--facile { color: #9be0b4; }
+.seat__level--normal { color: #e9d8a6; }
+.seat__level--difficile { color: #ff9b8a; }

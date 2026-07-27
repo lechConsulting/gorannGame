@@ -198,8 +198,8 @@ class BotPlayer
                 continue;
             }
 
-            // 2) Meilleure carte abordable du Chemin.
-            $target = $this->bestAffordablePathCard($state, $power);
+            // 2) Meilleure carte abordable du Chemin (valorisation selon le niveau).
+            $target = $this->bestAffordablePathCard($state, $player, $power, $player['level'] ?? 'facile');
             if ($target !== null) {
                 $this->engine->buyFromPath($state, $target);
                 $this->resolveEffects($state);
@@ -229,17 +229,29 @@ class BotPlayer
         return $power >= $cost;
     }
 
-    /** iid de la meilleure carte du Chemin abordable (PV desc, coût desc). */
-    private function bestAffordablePathCard(array $state, int $power): ?int
+    /**
+     * iid de la meilleure carte du Chemin abordable, selon le niveau du bot :
+     *  - facile    : PV puis coût (comportement historique), au coût brut ;
+     *  - normal    : valeur = Pouvoir + PV (à valeur égale, la moins chère), coût EFFECTIF (réductions) ;
+     *  - difficile : valeur + efficacité (rendement par point de coût), coût effectif.
+     */
+    private function bestAffordablePathCard(array $state, array $player, int $power, string $level): ?int
     {
         $best = null;
         $bestKey = null;
         foreach ($state['path'] as $iid) {
             $def = $this->engine->def($state, $iid);
-            if ($def['cost'] === null || (int) $def['cost'] > $power) {
-                continue; // ✱ (non achetable) ou trop cher
+            if ($def['cost'] === null) {
+                continue; // ✱ non achetable
             }
-            $key = [(int) ($def['pv'] ?? 0), (int) $def['cost']];
+            // Facile ignore les réductions (coût brut) ; les autres en profitent.
+            $cost = $level === 'facile'
+                ? (int) $def['cost']
+                : $this->engine->effectiveCost($state, $player, $def);
+            if ($cost > $power) {
+                continue; // trop cher
+            }
+            $key = $this->buyKey($def, $cost, $level);
             if ($bestKey === null || $key > $bestKey) {
                 $bestKey = $key;
                 $best = $iid;
@@ -247,6 +259,20 @@ class BotPlayer
         }
 
         return $best;
+    }
+
+    /** Clé de préférence d'achat (comparaison de tableaux) selon le niveau. */
+    private function buyKey(array $def, int $cost, string $level): array
+    {
+        $pv = (int) ($def['pv'] ?? 0);
+        $power = (int) (($def['attributes'] ?? [])['power'] ?? 0);
+        $value = $power + $pv;
+
+        return match ($level) {
+            'facile' => [$pv, $cost],            // PV desc puis coût desc (historique)
+            'normal' => [$value, -$cost],        // meilleure valeur, à égalité la moins chère
+            default => [$value + $value / max(1, $cost)], // difficile : valeur + efficacité
+        };
     }
 
     // ------------------------------------------------------------- Choix de cartes
