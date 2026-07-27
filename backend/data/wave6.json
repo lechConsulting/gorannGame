@@ -1,0 +1,96 @@
+{
+    "_comment": "Vague 6 : famille LIEUX (deck principal, 6 cartes). Effet Permanent (ongoing) : reste en jeu devant soi une fois joué. Aucun dans le tableau → quantité 1.",
+    "cards": [
+        {
+            "code": "hobbit-bourg",
+            "name": "Hobbit Bourg",
+            "type": "Lieu",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous jouez cette carte, laissez-la en face de vous pour le reste de la partie. Permanent : Payez 1 de moins pour acheter les cartes Artefact et Manœuvre dans le sentier. (Les cartes Valeur ne sont pas dans le sentier.)",
+            "attributes": {
+                "ongoing": true
+            }
+        },
+        {
+            "code": "isengard",
+            "name": "Isengard",
+            "type": "Lieu",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous jouez cette carte, laissez-la en face de vous pour le reste de la partie. Permanent : Une fois à chaque tour, vous pouvez choisir de détruire une carte de votre main.",
+            "attributes": {
+                "ongoing": true
+            }
+        },
+        {
+            "code": "poney-fringant",
+            "name": "Le Poney Fringant",
+            "type": "Lieu",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous jouez cette carte, laissez-la en face de vous pour le reste de la partie. Permanent : Défense : Mettez cette carte déjà en jeu vers votre pile de défausse pour éviter une Attaque ou une Embuscade. Si vous le faites, piochez une carte.",
+            "attributes": {
+                "ongoing": true,
+                "defense": true
+            }
+        },
+        {
+            "code": "rivendell",
+            "name": "Rivendell",
+            "type": "Lieu",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous jouez cette carte, laissez-la en face de vous pour le reste de la partie. Permanent : Pour chaque Allié que vous jouez, +1 Pouvoir.",
+            "attributes": {
+                "ongoing": true
+            }
+        },
+        {
+            "code": "mines-moria",
+            "name": "Les Mines de la Moria",
+            "type": "Lieu",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous jouez cette carte, laissez-la en face de vous pour le reste de la partie. Permanent : La première fois que vous jouez un Ennemi dans votre tour, piochez une carte.",
+            "attributes": {
+                "ongoing": true
+            }
+        },
+        {
+            "code": "lothlorien",
+            "name": "Lothlórien",
+            "type": "Lieu",
+            "category": "main_deck",
+            "cost": 7,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous jouez cette carte, laissez-la en face de vous pour le reste de la partie. Permanent : À la fin de chacun de vos tours, piochez une carte supplémentaire.",
+            "attributes": {
+                "ongoing": true
+            }
+        }
+    ]
+}

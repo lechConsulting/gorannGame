@@ -1,0 +1,152 @@
+{
+    "_comment": "Vague 7 : famille ENNEMIS (deck principal, 9 cartes). Portent Attaque et/ou Embuscade. Capitaine Orc de la Moria a un coût spécial '✱' (Quête). Cartes absentes du tableau (Spectres de l'Anneau, Capitaine Orc de la Moria) = quantité 1.",
+    "cards": [
+        {
+            "code": "orcs-de-la-moria",
+            "name": "Orcs de la Moria",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 8,
+            "text": "Si vous jouez ou avez joué une ou plusieurs autres cartes Orcs de la Moria, +4 Pouvoir. Sinon, +1 Pouvoir.",
+            "attributes": []
+        },
+        {
+            "code": "uruk-hai",
+            "name": "Uruk-Haï",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 4,
+            "text": "+2 Pouvoir. Attaque : Chaque adversaire choisit et défausse une carte de sa main. Embuscade : Prenez une carte Corruption.",
+            "attributes": {
+                "power": 2,
+                "attack": true,
+                "ambush": true
+            }
+        },
+        {
+            "code": "eclaireurs-uruk-hai",
+            "name": "Éclaireurs Uruk-Haï",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 2,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 4,
+            "text": "+2 Pouvoir. Embuscade : Choisissez et défaussez deux cartes de votre main.",
+            "attributes": {
+                "power": 2,
+                "ambush": true
+            }
+        },
+        {
+            "code": "chef-orc",
+            "name": "Chef Orc",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+1 Pouvoir et piochez une carte. Embuscade : Mettez un Lieu que vous contrôlez dans votre pile de défausse.",
+            "attributes": {
+                "power": 1,
+                "ambush": true
+            }
+        },
+        {
+            "code": "ombres-spectres-anneau",
+            "name": "Ombres des Spectres de l'Anneau",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+2 Pouvoir. Reprenez de votre pile de défausse deux cartes avec un coût de 3 ou moins. Embuscade : Révélez votre main et défaussez chaque carte qui a un coût égal à 3.",
+            "attributes": {
+                "power": 2,
+                "ambush": true
+            }
+        },
+        {
+            "code": "grognement-uruk-hai",
+            "name": "Grognement d'Uruk-Haï",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+2 Pouvoir. Attaque : Chaque adversaire révèle la carte du dessus de son deck. Si le coût est de 1 ou plus, il la défausse. Embuscade : Choisissez et défaussez une carte de votre main.",
+            "attributes": {
+                "power": 2,
+                "attack": true,
+                "ambush": true
+            }
+        },
+        {
+            "code": "cavaliers-noirs",
+            "name": "Les Cavaliers Noirs",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 6,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+3 Pouvoir. Attaque : Chaque adversaire défausse une carte au hasard de sa main. Embuscade : Révélez votre main et défaussez toutes les cartes de type Ennemi Principal.",
+            "attributes": {
+                "power": 3,
+                "attack": true,
+                "ambush": true
+            }
+        },
+        {
+            "code": "spectres-de-anneau",
+            "name": "Spectres de l'Anneau",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 7,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+3 Pouvoir. Attaque : Chaque adversaire prend une carte Corruption. Embuscade : Défaussez deux cartes de votre main au hasard.",
+            "attributes": {
+                "power": 3,
+                "attack": true,
+                "ambush": true
+            }
+        },
+        {
+            "code": "capitaine-orc-moria",
+            "name": "Capitaine Orc de la Moria",
+            "type": "Ennemi",
+            "category": "main_deck",
+            "cost": 2,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+2 Pouvoir. Quête : À la fin du jeu, cette carte vaudra 5 Points de victoire si vous avez trois cartes Orcs de la Moria ou plus dans votre deck.",
+            "attributes": {
+                "power": 2,
+                "specialCost": "✱",
+                "questVP": 5,
+                "questCondition": "3+ Orcs de la Moria dans le deck"
+            }
+        }
+    ]
+}

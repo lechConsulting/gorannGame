@@ -1,0 +1,212 @@
+{
+    "_comment": "Vague 4 : famille ARTEFACTS (deck principal, 14 cartes). Dard et Broche Elfique ont un coût spécial '✱' (cost:null, attributes.specialCost) lié au mot-clé Quête.",
+    "cards": [
+        {
+            "code": "pierres-de-vision",
+            "name": "Pierres de Vision",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "Piochez deux cartes, puis mettez une carte de votre main sur le dessus de votre deck.",
+            "attributes": []
+        },
+        {
+            "code": "dard",
+            "name": "Dard",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+2 Pouvoir. Quête : À la fin du jeu, cette carte vaudra 5 Points de victoire si vous avez cinq cartes de type Ennemi ou plus dans votre deck.",
+            "attributes": {
+                "power": 2,
+                "specialCost": "✱",
+                "questVP": 5,
+                "questCondition": "5+ Ennemis dans le deck"
+            }
+        },
+        {
+            "code": "cor-gondor",
+            "name": "Cor du Gondor",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "+1 Pouvoir pour chaque type de carte différent (hors Départ) que vous jouez ou avez joué ce tour.",
+            "attributes": []
+        },
+        {
+            "code": "lumiere-earendil",
+            "name": "Lumière d'Eärendil",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 2,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "Nommez un type de carte (hors Départ) puis révélez la carte du dessus de votre deck. Si c'est le type nommé, +4 Pouvoir. Sinon, +1 Pouvoir.",
+            "attributes": []
+        },
+        {
+            "code": "broche-elfique",
+            "name": "Broche Elfique",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+1 Pouvoir. Quête : À la fin du jeu, cette carte vaudra 5 Points de victoire si vous avez cinq autres cartes de type Artefact ou plus dans votre deck.",
+            "attributes": {
+                "power": 1,
+                "specialCost": "✱",
+                "questVP": 5,
+                "questCondition": "5+ autres Artefacts dans le deck"
+            }
+        },
+        {
+            "code": "miroir-de-galadriel",
+            "name": "Miroir de Galadriel",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "+1 Pouvoir. Regardez la carte du dessus de votre deck. Vous pouvez la détruire.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "pendentif-etoile-du-soir",
+            "name": "Pendentif de l'Étoile du Soir",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 6,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "Nommez un type de carte (hors Départ) puis révélez la carte du dessus de votre deck. Si c'est le type nommé, +8 Pouvoir. Sinon, +1 Pouvoir.",
+            "attributes": []
+        },
+        {
+            "code": "torche-enflammee",
+            "name": "Torche Enflammée",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "+3 Pouvoir. Nommez un type de carte (hors Départ), puis révélez la carte du dessus de votre deck. Si c'est le type nommé, mettez-la dans votre main.",
+            "attributes": {
+                "power": 3
+            }
+        },
+        {
+            "code": "livre-de-mazarbul",
+            "name": "Livre de Mazarbul",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Piochez une carte, puis révélez la carte du dessus du deck principal. Si son coût est de 5 ou plus, prenez-la et mettez-la sur le dessus de votre deck.",
+            "attributes": []
+        },
+        {
+            "code": "feux-artifice-gandalf",
+            "name": "Feux d'Artifice de Gandalf",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+1 Pouvoir. Vous pouvez obtenir une carte du sentier avec un coût de 5 ou moins et la mettre sur le dessus de votre deck.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "eclats-de-narsil",
+            "name": "Éclats de Narsil",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 7,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+1 Pouvoir. Pour chaque autre Artefact que vous jouez ou avez joué ce tour, +3 Pouvoir supplémentaires. Vous pouvez détruire une carte de votre main ou de la pile de défausse.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "veste-de-mithril",
+            "name": "Veste de Mithril",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 7,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Prenez la carte du dessus du deck principal. Vous pouvez la mettre sur le dessus de votre deck. Défense : Vous pouvez défausser cette carte pour éviter une Attaque ou une Embuscade. Si vous le faites, prenez la carte du dessus du deck principal et mettez-la sur le dessus de votre deck.",
+            "attributes": {
+                "defense": true
+            }
+        },
+        {
+            "code": "herbe-a-pipe",
+            "name": "Herbe à Pipe",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 1,
+            "pv": 0,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+1 Pouvoir et piochez une carte. Mettez cette carte dans la pile de défausse du joueur à votre gauche.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "bouclier-de-boromir",
+            "name": "Bouclier de Boromir",
+            "type": "Artefact",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+2 Pouvoir. Défense : Vous pouvez défausser cette carte pour éviter une Attaque ou une Embuscade. Si vous le faites, piochez une carte. Si vous évitez une Embuscade d'une carte retournée du sentier, vous pouvez obtenir cette carte et la mettre dans votre main.",
+            "attributes": {
+                "power": 2,
+                "defense": true
+            }
+        }
+    ]
+}

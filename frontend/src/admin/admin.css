@@ -1,0 +1,36 @@
+.bo, .bo-login {
+  min-height: 100vh;
+  padding: 1.2rem 1.4rem;
+  background: linear-gradient(180deg, #14171d 0%, #0c0e12 100%);
+  color: #e8e6df;
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+}
+.bo__top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.bo__top h1 { color: #e9d8a6; font-size: 1.2rem; margin: 0; }
+.bo__actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.bo__filters { display: flex; gap: 0.6rem; margin: 0.8rem 0; }
+.bo__filters input, .bo__filters select,
+.bo-login input, .bo-edit input, .bo-edit select, .bo-edit textarea {
+  padding: 0.45rem 0.6rem; border-radius: 8px; border: 1px solid #444;
+  background: #1c1f26; color: #e8e6df; font-size: 0.9rem;
+}
+.bo__filters input { flex: 1; }
+
+.bo__table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.bo__table th, .bo__table td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+.bo__table th { color: #b7a97f; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.5px; position: sticky; top: 0; background: #14171d; }
+.bo__table tr:hover td { background: rgba(255,255,255,0.03); }
+.bo__text { max-width: 340px; opacity: 0.85; }
+.bo__rowbtns { white-space: nowrap; }
+
+.gbtn--sm { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+
+.bo-login { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem; }
+.bo-login form { display: flex; flex-direction: column; gap: 0.6rem; width: 280px; }
+
+.bo-edit { max-width: 720px; width: 100%; }
+.bo-edit__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+.bo-edit label, .bo-edit__text { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.78rem; color: #b7a97f; }
+.bo-edit__text { margin-top: 0.6rem; }
+.bo-edit textarea { font-family: inherit; }

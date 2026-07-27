@@ -1,0 +1,212 @@
+{
+    "_comment": "Vague 3 : famille MANŒUVRES (deck principal, 14 cartes). Tableau de quantités coupé : les 4 dernières (seduit-par-anneau, espoir-perdure, tambours-profondeurs, on-entre-pas-en-mordor) supposées qty 1 → attributes.quantityConfirmed=false.",
+    "cards": [
+        {
+            "code": "vous-ne-passerez-pas",
+            "name": "Vous ne passerez pas !",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 2,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "Piochez une carte. Défense : Vous pouvez défausser une carte pour éviter une Attaque ou une Embuscade. Si vous le faites, piochez une carte.",
+            "attributes": {
+                "defense": true
+            }
+        },
+        {
+            "code": "conseil-elrond",
+            "name": "Le Conseil d'Elrond",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "Piochez deux cartes.",
+            "attributes": []
+        },
+        {
+            "code": "toujours-tranchante",
+            "name": "Toujours Tranchante",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "Piochez une carte. Vous pouvez détruire une carte de votre main ou de la pile de défausse.",
+            "attributes": []
+        },
+        {
+            "code": "ne-me-tentez-pas-frodon",
+            "name": "Ne me Tentez pas Frodon !",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+2 Pouvoir. Défense : Vous pouvez défausser cette carte pour éviter une Attaque ou une Embuscade. Si vous le faites, piochez une carte.",
+            "attributes": {
+                "power": 2,
+                "defense": true
+            }
+        },
+        {
+            "code": "cetait-proche",
+            "name": "C'était Proche !",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+1 Pouvoir. Défense : Vous pouvez défausser cette carte pour éviter et dévier une Attaque ou une Embuscade vers un adversaire. Le joueur visé peut lui aussi éviter l'Attaque ou l'Embuscade. Piochez une carte pour chaque joueur qui a évité une Attaque ou Embuscade.",
+            "attributes": {
+                "power": 1,
+                "defense": true
+            }
+        },
+        {
+            "code": "fuyez-pauvres-fous",
+            "name": "Fuyez, Pauvres Fous !",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "Détruisez une carte de votre main ou de la pile de défausse. Défense : Vous pouvez défausser cette carte pour éviter une Attaque ou une Embuscade. Si vous le faites, détruisez une carte de votre main ou de la pile de défausse.",
+            "attributes": {
+                "defense": true
+            }
+        },
+        {
+            "code": "mon-capitaine-mon-roi",
+            "name": "Mon Capitaine, Mon Roi",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+1 Pouvoir. Choisissez un autre joueur. Vous et ce joueur pouvez détruire une carte de votre main ou de votre pile de défausse.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "ils-ne-servent-que-des-pintes",
+            "name": "Ils ne servent que des Pintes !",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+2 Pouvoir. Choisissez un joueur. Tous les autres joueurs piochent une carte.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "ceci-est-pour-toi",
+            "name": "Ceci est pour Toi !",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "Piochez deux cartes. Choisissez un autre joueur, il pioche une carte.",
+            "attributes": []
+        },
+        {
+            "code": "recuperez-forces",
+            "name": "Récupérez vos Forces",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 2,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+1 Pouvoir. Si cette carte est la première que vous jouez ce tour, défaussez votre main et piochez quatre cartes.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "seduit-par-anneau",
+            "name": "Séduit par l'Anneau",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+1 Pouvoir. Vous pouvez prendre une carte Corruption, si vous le faites piochez deux cartes.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "espoir-perdure",
+            "name": "L'Espoir Perdure",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+2 Pouvoir. Défense : Vous pouvez défausser cette carte pour éviter une Attaque ou une Embuscade. Si vous le faites, vous pouvez prendre trois cartes Courage de la pile de défausse dans votre main.",
+            "attributes": {
+                "power": 2,
+                "defense": true
+            }
+        },
+        {
+            "code": "tambours-profondeurs",
+            "name": "Tambours dans les Profondeurs",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 6,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Jouez une carte du sentier comme si elle venait de votre main. À la fin du tour détruisez-la.",
+            "attributes": {
+                "quantityConfirmed": false
+            }
+        },
+        {
+            "code": "on-entre-pas-en-mordor",
+            "name": "On n'entre pas si facilement en Mordor !",
+            "type": "Manœuvre",
+            "category": "main_deck",
+            "cost": 6,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+3 Pouvoir. Piochez une carte pour chaque Lieu que vous contrôlez.",
+            "attributes": {
+                "power": 3
+            }
+        }
+    ]
+}

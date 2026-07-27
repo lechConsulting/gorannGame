@@ -1,0 +1,482 @@
+{
+    "_comment": "Vague 1 du set LOTR : cartes génériques, Archennemis, cartes de départ Héros, et 6 cartes échantillon du deck principal. Le deck principal complet (116) arrivera dans les vagues suivantes.",
+    "cards": [
+        {
+            "code": "courage",
+            "name": "Courage",
+            "type": "Départ",
+            "category": "starter",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": null,
+            "quantity": 30,
+            "text": "+1 Pouvoir.",
+            "attributes": {
+                "power": 1,
+                "perPlayerStart": 6
+            }
+        },
+        {
+            "code": "desespoir",
+            "name": "Désespoir",
+            "type": "Départ",
+            "category": "starter",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": null,
+            "quantity": 15,
+            "text": "Aucun effet.",
+            "attributes": {
+                "perPlayerStart": 3
+            }
+        },
+        {
+            "code": "corruption",
+            "name": "Corruption",
+            "type": "Corruption",
+            "category": "corruption",
+            "cost": 0,
+            "pv": -1,
+            "level": null,
+            "hero": null,
+            "quantity": 20,
+            "text": "Les cartes Corruption réduisent vos points de victoire à la fin du jeu.",
+            "attributes": {
+                "buyable": false,
+                "gainedOnly": true
+            }
+        },
+        {
+            "code": "valeur",
+            "name": "Valeur",
+            "type": "Manœuvre",
+            "category": "valor",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 15,
+            "text": "+2 Pouvoir.",
+            "attributes": {
+                "power": 2,
+                "alwaysAvailable": true
+            }
+        },
+        {
+            "code": "nazgul",
+            "name": "Nazgûl",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 8,
+            "pv": 4,
+            "level": 1,
+            "hero": null,
+            "quantity": 1,
+            "text": "+2 Pouvoir. Vous pouvez gagner une carte du sentier avec un coût de 5 ou plus. (Cette carte commence le jeu sur le dessus du paquet Ennemi Principal.)",
+            "attributes": {
+                "power": 2,
+                "startPosition": "top"
+            }
+        },
+        {
+            "code": "troupe-uruk-hai",
+            "name": "Troupe d'Uruk-Haï",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 9,
+            "pv": 5,
+            "level": 2,
+            "hero": null,
+            "quantity": 1,
+            "text": "+3 Pouvoir. Pour chaque joueur sans aucune carte dans sa pile de défausse, +3 Pouvoir. Embuscade de Groupe : Quand cette carte entre en jeu, détruisez toutes les cartes du sentier et remplacez-les. Toutes les cartes avec l'effet Embuscade sont appliquées à tous les joueurs.",
+            "attributes": {
+                "power": 3,
+                "groupAmbush": true
+            }
+        },
+        {
+            "code": "troll-des-cavernes",
+            "name": "Troll des Cavernes",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 9,
+            "pv": 5,
+            "level": 2,
+            "hero": null,
+            "quantity": 1,
+            "text": "+4 Pouvoir. Embuscade de Groupe : Chaque joueur révèle une carte au hasard de sa main. Détruisez chaque carte révélée ayant le même coût qu'une autre carte révélée.",
+            "attributes": {
+                "power": 4,
+                "groupAmbush": true
+            }
+        },
+        {
+            "code": "ulaire-ostea",
+            "name": "Ulaire Ostea",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 9,
+            "pv": 5,
+            "level": 2,
+            "hero": null,
+            "quantity": 1,
+            "text": "+3 Pouvoir. Attaque : Choisissez un autre joueur. Vous pouvez mettre une carte de votre pile de défausse dans sa défausse. S'il évite l'Attaque, détruisez cette carte. Embuscade de Groupe : Chaque joueur révèle sa main. Chaque joueur ayant révélé un ou plusieurs Allié gagne deux Corruptions.",
+            "attributes": {
+                "power": 3,
+                "attack": true,
+                "groupAmbush": true
+            }
+        },
+        {
+            "code": "guetteur-de-leau",
+            "name": "Le Guetteur de l'Eau",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 9,
+            "pv": 5,
+            "level": 2,
+            "hero": null,
+            "quantity": 1,
+            "text": "+2 Pouvoir et piochez une carte. Embuscade de Groupe : Chaque joueur défausse une carte au hasard de sa main. Le joueur ayant défaussé la carte au coût le plus élevé défausse deux cartes supplémentaires.",
+            "attributes": {
+                "power": 2,
+                "groupAmbush": true
+            }
+        },
+        {
+            "code": "fourmiliere-de-la-moria",
+            "name": "Fourmilière de la Moria",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 8,
+            "pv": 5,
+            "level": 2,
+            "hero": null,
+            "quantity": 1,
+            "text": "+3 Pouvoir. Vous pouvez gagner une carte du sentier et la mettre dans votre main. Embuscade de Groupe : Chaque joueur révèle sa main et se défausse de tous les Artefacts révélés.",
+            "attributes": {
+                "power": 3,
+                "groupAmbush": true
+            }
+        },
+        {
+            "code": "ulaire-nelya",
+            "name": "Ulaire Nelya",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 10,
+            "pv": 7,
+            "level": 3,
+            "hero": null,
+            "quantity": 1,
+            "text": "Gagnez la carte au coût le plus élevé du sentier. Embuscade de Groupe : En commençant par le joueur actif, chaque joueur devine le coût de la carte du dessus du paquet principal puis la révèle. S'il a deviné juste, il gagne la carte dans sa main. Sinon, la carte va sous le paquet principal et le joueur prend une Corruption.",
+            "attributes": {
+                "groupAmbush": true
+            }
+        },
+        {
+            "code": "saroumane",
+            "name": "Saroumane",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 12,
+            "pv": 8,
+            "level": 3,
+            "hero": null,
+            "quantity": 1,
+            "text": "Nommez un type de carte puis révélez les sept cartes du dessus du paquet principal. Mettez toutes les cartes du type nommé dans votre main. Embuscade de Groupe : L'Embuscade ne peut être évitée. Simultanément, chaque joueur choisit et révèle une carte de sa main. Chaque joueur ayant révélé le coût le plus bas prend trois Corruptions. Chaque joueur ayant révélé le coût le plus haut détruit sa carte.",
+            "attributes": {
+                "groupAmbush": true,
+                "unavoidable": true
+            }
+        },
+        {
+            "code": "roi-sorcier",
+            "name": "Le Roi Sorcier",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 11,
+            "pv": 8,
+            "level": 3,
+            "hero": null,
+            "quantity": 1,
+            "text": "Détruisez les deux cartes du dessus du deck principal. +X Pouvoir, X = coût total des deux cartes détruites. Embuscade de Groupe : Chaque joueur révèle sa main. Celui ayant révélé le plus de Courage les détruit et pioche autant de Corruptions que de cartes détruites, puis les répartit comme il le souhaite entre les joueurs n'ayant pas évité l'Embuscade.",
+            "attributes": {
+                "groupAmbush": true
+            }
+        },
+        {
+            "code": "lurtz",
+            "name": "Lurtz",
+            "type": "Ennemi",
+            "category": "archenemy",
+            "cost": 14,
+            "pv": 10,
+            "level": 4,
+            "hero": null,
+            "quantity": 1,
+            "text": "Embuscade de Groupe : Chaque joueur nomme un coût, puis révèle une carte au hasard de sa main. Les joueurs dont le coût révélé ne correspond pas au coût nommé défaussent toute leur main. (Cette carte commence le jeu en dessous du paquet Ennemi Principal.)",
+            "attributes": {
+                "groupAmbush": true,
+                "startPosition": "bottom"
+            }
+        },
+        {
+            "code": "anneau-unique",
+            "name": "L'Anneau Unique",
+            "type": "Artefact",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Frodon",
+            "quantity": 1,
+            "text": "+2 Pouvoir. Défense : Vous pouvez révéler cette carte depuis votre main pour éviter une Attaque ou une Embuscade. Si vous le faites, révélez la carte du dessus du deck principal et mettez-la en dessous du paquet. S'il s'agit d'un Ennemi, prenez une Corruption. Cette carte ne peut être détruite.",
+            "attributes": {
+                "power": 2,
+                "defense": true,
+                "indestructible": true
+            }
+        },
+        {
+            "code": "arc-des-galadhrim",
+            "name": "Arc des Galadhrim",
+            "type": "Artefact",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Legolas",
+            "quantity": 1,
+            "text": "+2 Pouvoir. S'il y a dix cartes ou plus dans votre pile de défausse, piochez une carte.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "baton-de-gandalf",
+            "name": "Bâton de Gandalf",
+            "type": "Artefact",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Gandalf le Gris",
+            "quantity": 1,
+            "text": "+1 Pouvoir. Vous pouvez détruire la carte du dessus du sentier. Si vous le faites, remplacez-la par la carte du dessus du deck principal. Ignorez les effets d'Embuscade de cette carte.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "en-ce-moment-decisif",
+            "name": "En ce Moment Décisif",
+            "type": "Manœuvre",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Gandalf le Blanc",
+            "quantity": 1,
+            "text": "+2 Pouvoir. Vous pouvez défausser la carte du dessus de votre deck.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "epee-daragorn",
+            "name": "Épée d'Aragorn",
+            "type": "Artefact",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Aragorn",
+            "quantity": 1,
+            "text": "+1 Pouvoir pour chaque carte de coût différent que vous jouez ou avez joué ce tour.",
+            "attributes": []
+        },
+        {
+            "code": "epee-de-boromir",
+            "name": "Épée de Boromir",
+            "type": "Artefact",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Boromir",
+            "quantity": 1,
+            "text": "+X Pouvoir. X = Niveau de l'Ennemi Principal actuel.",
+            "attributes": []
+        },
+        {
+            "code": "hache-de-gimli",
+            "name": "Hache de Gimli",
+            "type": "Artefact",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Gimli",
+            "quantity": 1,
+            "text": "+2 Pouvoir. Vous pouvez défausser une carte. Si vous le faites, vous payez 2 de moins pour vaincre l'Ennemi Principal ce tour.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "bravoure-de-sam",
+            "name": "Bravoure de Sam",
+            "type": "Manœuvre",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Samsagace",
+            "quantity": 1,
+            "text": "+1 Pouvoir. +1 Pouvoir supplémentaire pour chaque tranche de cinq cartes dans votre pile de défausse.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "je-ne-crains-ni-douleur-ni-mort",
+            "name": "Je ne crains ni la Douleur ni la Mort",
+            "type": "Manœuvre",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Eowyn",
+            "quantity": 1,
+            "text": "Nommez un type de carte (hors Départ) puis piochez la carte du dessus de votre deck. Si c'est le type nommé, +1 Pouvoir.",
+            "attributes": []
+        },
+        {
+            "code": "jamais-plus-de-desespoir",
+            "name": "Jamais plus de Désespoir",
+            "type": "Manœuvre",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Roi Théoden",
+            "quantity": 1,
+            "text": "+1 Pouvoir. Vous pouvez détruire une carte Désespoir dans la pile de défausse d'un joueur de votre choix. Si vous le faites, piochez une carte.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "jai-fait-ce-que-jai-juge-bien",
+            "name": "J'ai fait ce que j'ai jugé bien",
+            "type": "Manœuvre",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Faramir",
+            "quantity": 1,
+            "text": "Si cette carte est la première que vous jouez ce tour, défaussez votre main et piochez cinq cartes. Sinon, +1 Pouvoir.",
+            "attributes": []
+        },
+        {
+            "code": "galoper-comme-le-vent",
+            "name": "Galoper comme le Vent",
+            "type": "Manœuvre",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Arwen",
+            "quantity": 1,
+            "text": "+1 Pouvoir. Défense : Vous pouvez défausser cette carte pour éviter une Attaque ou une Embuscade. Si vous le faites, piochez deux cartes.",
+            "attributes": {
+                "power": 1,
+                "defense": true
+            }
+        },
+        {
+            "code": "second-dejeuner",
+            "name": "Second Déjeuner",
+            "type": "Manœuvre",
+            "category": "hero_starting",
+            "cost": 0,
+            "pv": 0,
+            "level": null,
+            "hero": "Merry & Pippin",
+            "quantity": 1,
+            "text": "+3 Pouvoir si vous avez déjà gagné ou acheté une carte ce tour. Sinon, +1 Pouvoir.",
+            "attributes": []
+        }
+    ],
+    "heroes": [
+        {
+            "name": "Frodon",
+            "race": "Hobbit",
+            "startingCardCode": "anneau-unique"
+        },
+        {
+            "name": "Samsagace",
+            "race": "Hobbit",
+            "startingCardCode": "bravoure-de-sam"
+        },
+        {
+            "name": "Merry & Pippin",
+            "race": "Hobbit",
+            "startingCardCode": "second-dejeuner"
+        },
+        {
+            "name": "Legolas",
+            "race": "Elfe",
+            "startingCardCode": "arc-des-galadhrim"
+        },
+        {
+            "name": "Arwen",
+            "race": "Elfe",
+            "startingCardCode": "galoper-comme-le-vent"
+        },
+        {
+            "name": "Aragorn",
+            "race": "Humain",
+            "startingCardCode": "epee-daragorn"
+        },
+        {
+            "name": "Boromir",
+            "race": "Humain",
+            "startingCardCode": "epee-de-boromir"
+        },
+        {
+            "name": "Faramir",
+            "race": "Humain",
+            "startingCardCode": "jai-fait-ce-que-jai-juge-bien"
+        },
+        {
+            "name": "Eowyn",
+            "race": "Humain",
+            "startingCardCode": "je-ne-crains-ni-douleur-ni-mort"
+        },
+        {
+            "name": "Roi Théoden",
+            "race": "Humain",
+            "startingCardCode": "jamais-plus-de-desespoir"
+        },
+        {
+            "name": "Gimli",
+            "race": "Nain",
+            "startingCardCode": "hache-de-gimli"
+        },
+        {
+            "name": "Gandalf le Gris",
+            "race": "Magicien",
+            "startingCardCode": "baton-de-gandalf"
+        },
+        {
+            "name": "Gandalf le Blanc",
+            "race": "Magicien",
+            "startingCardCode": "en-ce-moment-decisif"
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+gesdinet_jwt_refresh_token:
+    # Notre entité concrète (mapping en attributs dans src/Entity/RefreshToken.php).
+    refresh_token_class: App\Entity\RefreshToken
+
+    # Durée de vie du refresh token : 30 jours. Tant qu'il est valide, le
+    # frontend peut ré-obtenir un JWT d'accès sans redemander le mot de passe.
+    ttl: 2592000
+
+    # Prolonge la validité du refresh token à chaque usage : session glissante.
+    ttl_update: true
+
+    # Rotation : consommer un refresh token en génère un nouveau et supprime
+    # l'ancien (limite la fenêtre d'exploitation d'un jeton volé).
+    single_use: true

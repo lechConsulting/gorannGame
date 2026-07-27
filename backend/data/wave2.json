@@ -1,0 +1,214 @@
+{
+    "_comment": "Vague 2 : famille ALLIÉS COMPLÈTE (deck principal, 14 cartes). Règle de quantité : carte absente du tableau = 1 exemplaire. Grands-Pas le Rôdeur a un coût spécial '✱' (à clarifier) → cost:null, attributes.specialCost.",
+    "cards": [
+        {
+            "code": "haldir",
+            "name": "Haldir",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 2,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "+2 Pouvoir.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "pippin",
+            "name": "Pippin",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 2,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "Piochez une carte de votre deck.",
+            "attributes": []
+        },
+        {
+            "code": "merry",
+            "name": "Merry",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "+2 Pouvoir. Regardez la carte du dessus de votre deck. Vous pouvez la défausser.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "legolas-vertefeuille",
+            "name": "Legolas Vertefeuille",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "Pour cette carte et chaque autre carte Allié que vous jouez ou avez jouée ce tour, +2 Pouvoir chacune.",
+            "attributes": []
+        },
+        {
+            "code": "elendil",
+            "name": "Elendil",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 5,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 3,
+            "text": "+3 Pouvoir.",
+            "attributes": {
+                "power": 3
+            }
+        },
+        {
+            "code": "frodon-porteur-anneau",
+            "name": "Frodon Saquet Porteur de l'Anneau",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+2 Pouvoir. Si vous jouez ou que vous avez joué un autre Allié ce tour, vous pouvez détruire une carte dans votre main ou dans votre pile de défausse.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "samsagace-gamegie",
+            "name": "Samsagace Gamegie",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 3,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+2 Pouvoir. Détruisez une carte Corruption dans votre main ou dans votre pile de défausse.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "grand-pas-rodeur",
+            "name": "Grands-Pas le Rôdeur",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 6,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 2,
+            "text": "+3 Pouvoir. Quête : À la fin du jeu, cette carte vaudra 5 Points de victoire si vous avez cinq autres cartes de type Allié ou plus dans votre deck.",
+            "attributes": {
+                "power": 3,
+                "specialCost": "✱",
+                "questVP": 5,
+                "questCondition": "5+ autres Alliés dans le deck"
+            }
+        },
+        {
+            "code": "bilbon-saquet",
+            "name": "Bilbon Saquet",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 2,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+1 Pouvoir. Vous pouvez défausser une carte avec un coût de 0. Si vous le faites, piochez une carte.",
+            "attributes": {
+                "power": 1
+            }
+        },
+        {
+            "code": "boromir-capitaine-tour-blanche",
+            "name": "Boromir Capitaine de la Tour Blanche",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 6,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+4 Pouvoir.",
+            "attributes": {
+                "power": 4
+            }
+        },
+        {
+            "code": "gimli-fils-de-gloin",
+            "name": "Gimli le Nain fils de Gloïn",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 4,
+            "pv": 1,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+2 Pouvoir. Vous payez 2 de moins pour vaincre l'Ennemi Principal ce tour-ci.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "gandalf-le-gris",
+            "name": "Gandalf le Gris",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 7,
+            "pv": 3,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+3 Pouvoir. Piochez une carte.",
+            "attributes": {
+                "power": 3
+            }
+        },
+        {
+            "code": "seigneur-elrond",
+            "name": "Seigneur Elrond",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 7,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+2 Pouvoir. Révélez les quatre cartes du dessus du deck principal. Gagnez tous les Allié révélés et mettez-les dans votre main. Mettez les cartes restantes en-dessous du deck principal dans l'ordre que vous souhaitez.",
+            "attributes": {
+                "power": 2
+            }
+        },
+        {
+            "code": "galadriel-dame-de-lumiere",
+            "name": "Galadriel Dame de Lumière",
+            "type": "Allié",
+            "category": "main_deck",
+            "cost": 7,
+            "pv": 2,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "+2 Pouvoir. Révélez la carte du dessus de votre deck et mettez-la dans votre main. Si vous avez révélé un Allié de cette façon, répétez ce processus.",
+            "attributes": {
+                "power": 2
+            }
+        }
+    ]
+}

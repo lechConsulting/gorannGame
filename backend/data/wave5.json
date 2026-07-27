@@ -1,0 +1,81 @@
+{
+    "_comment": "Vague 5 : famille CHANCE / FORTUNE (deck principal, 5 cartes). Coût 0, sans PV, jouées puis détruites immédiatement à l'achat/gain. Aucune dans le tableau → quantité 1.",
+    "cards": [
+        {
+            "code": "rage-riviere",
+            "name": "Rage de la Rivière",
+            "type": "Chance",
+            "category": "main_deck",
+            "cost": 0,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous achetez ou gagnez cette carte, jouez-la immédiatement puis détruisez-la. +3 Pouvoir ce tour.",
+            "attributes": {
+                "power": 3,
+                "fortune": true
+            }
+        },
+        {
+            "code": "decouverte-de-anneau",
+            "name": "Découverte de l'Anneau",
+            "type": "Chance",
+            "category": "main_deck",
+            "cost": 0,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous achetez ou gagnez cette carte, jouez-la immédiatement puis détruisez-la. Piochez deux cartes.",
+            "attributes": {
+                "fortune": true
+            }
+        },
+        {
+            "code": "un-cadeau",
+            "name": "Un Cadeau",
+            "type": "Chance",
+            "category": "main_deck",
+            "cost": 0,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous achetez ou gagnez cette carte, jouez-la immédiatement puis détruisez-la. Révélez la carte du dessus du deck principal puis mettez-la dans votre main.",
+            "attributes": {
+                "fortune": true
+            }
+        },
+        {
+            "code": "evasion-ailee",
+            "name": "Évasion Ailée",
+            "type": "Chance",
+            "category": "main_deck",
+            "cost": 0,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous achetez ou gagnez cette carte, jouez-la immédiatement puis détruisez-la. Prenez une carte de votre pile de défausse et mettez-la dans votre main.",
+            "attributes": {
+                "fortune": true
+            }
+        },
+        {
+            "code": "jetez-le-dans-le-feu",
+            "name": "Jetez-le dans le Feu !",
+            "type": "Chance",
+            "category": "main_deck",
+            "cost": 0,
+            "pv": null,
+            "level": null,
+            "hero": null,
+            "quantity": 1,
+            "text": "Lorsque vous achetez ou gagnez cette carte, jouez-la immédiatement puis détruisez-la. Détruisez jusqu'à deux cartes dans votre main et/ou de la pile de défausse.",
+            "attributes": {
+                "fortune": true
+            }
+        }
+    ]
+}
