@@ -43,11 +43,11 @@ class EffectRegistry
                     'source' => $code, 'sourceName' => $def['name'],
                     'label' => 'Choisis un autre joueur : il pioche une carte']);
                 break;
-            case 'pierres-de-vision': // pioche 2 puis remet une carte de la main sur le deck
-                $this->queueDraw($engine, $state, $def, 2);
-                $engine->queueEffect($state, ['op' => 'putOnDeck', 'kind' => 'pos',
+            case 'pierres-de-vision': // pioche 2 (garanti) PUIS remet OBLIGATOIREMENT une carte sur le deck
+                $engine->draw($state, $player, 2);
+                $engine->queueEffect($state, ['op' => 'putOnDeck', 'kind' => 'neg',
                     'source' => $code, 'sourceName' => $def['name'],
-                    'label' => 'Mets une carte de ta main sur ton deck']);
+                    'label' => 'Mets une carte de ta main sur ton deck (obligatoire)']);
                 break;
 
             // --- Pouvoir + pioche ---
