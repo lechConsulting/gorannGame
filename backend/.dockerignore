@@ -1,0 +1,9 @@
+vendor/
+var/
+config/jwt/*.pem
+.env.local
+.env.*.local
+.git
+.idea
+node_modules
+tests/

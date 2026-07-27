@@ -1,0 +1,84 @@
+# Stack de PRODUCTION du jeu "gorann" (LOTR deck-builder).
+# Tout est isolé sous le projet "gorann" — n'interfère avec rien d'autre.
+# Un seul port est exposé, uniquement sur 127.0.0.1 : le nginx de l'hôte
+# fait le reverse-proxy depuis gorann.games.lechat-consulting.fr.
+#
+# Lancement :
+#   docker compose --env-file deploy/.env -f compose.prod.yaml up -d --build
+name: gorann
+
+services:
+  # --- Base MariaDB dédiée (isolée, jamais partagée) -----------------------
+  db:
+    image: mariadb:11.6
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # --- Backend Symfony (PHP-FPM) ------------------------------------------
+  php:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: "0"
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: "mysql://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_NAME}?serverVersion=11.6.2-MariaDB&charset=utf8mb4"
+      JWT_SECRET_KEY: "%kernel.project_dir%/config/jwt/private.pem"
+      JWT_PUBLIC_KEY: "%kernel.project_dir%/config/jwt/public.pem"
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+      MERCURE_URL: "http://mercure/.well-known/mercure"
+      MERCURE_PUBLIC_URL: "https://${APP_DOMAIN}/.well-known/mercure"
+      MERCURE_JWT_SECRET: ${MERCURE_JWT_SECRET}
+      CORS_ALLOW_ORIGIN: "^https?://${APP_DOMAIN}$$"
+      DEFAULT_URI: "https://${APP_DOMAIN}"
+    volumes:
+      - jwt_keys:/var/www/html/config/jwt
+
+  # --- Hub Mercure (temps réel SSE, mode anonyme) --------------------------
+  mercure:
+    image: dunglas/mercure:v0.16
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ":80"
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET}
+      # Abonnements anonymes autorisés (le front s'abonne sans JWT).
+      MERCURE_EXTRA_DIRECTIVES: |
+        anonymous
+        cors_origins https://${APP_DOMAIN}
+    volumes:
+      - mercure_data:/data
+      - mercure_config:/config
+
+  # --- Serveur web : SPA React + reverse-proxy /api et /mercure ------------
+  web:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - php
+      - mercure
+    ports:
+      # Exposé UNIQUEMENT en local : le nginx de l'hôte proxifie vers ici.
+      - "127.0.0.1:8090:80"
+
+volumes:
+  db_data:
+  jwt_keys:
+  mercure_data:
+  mercure_config:

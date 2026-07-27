@@ -8,5 +8,8 @@
 # Vite (cache racine)
 .vite/
 
+# Secrets de déploiement (serveur)
+/deploy/.env
+
 # Divers
 *.log
