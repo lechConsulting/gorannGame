@@ -3,7 +3,27 @@ import { AnimatePresence } from "framer-motion";
 import { api, subscribe } from "../api";
 import GameCard from "./GameCard";
 import Tutorial from "./Tutorial";
+import GuidedTour from "./GuidedTour";
 import GroupAmbushAlert from "./GroupAmbushAlert";
+
+// Étapes de la visite guidée : chaque cible pointe vers un attribut data-tour
+// posé sur une zone du plateau. Les zones absentes sont ignorées à l'exécution.
+const TOUR_STEPS = [
+  { target: "header", emoji: "🧭", title: "Le fil du tour",
+    text: "Ici s'affiche le tour en cours et à qui de jouer. Le bouton ❓ rouvre les règles quand tu veux." },
+  { target: "opponents", emoji: "🧑‍🤝‍🧑", title: "Tes adversaires",
+    text: "Leurs mains sont cachées : tu ne vois que leurs compteurs (main ✋, pioche 🂠, défausse 🗑️). Celui qui joue est mis en avant." },
+  { target: "piles", emoji: "🐉", title: "L'Ennemi Principal & les piles",
+    text: "L'Archennemi à vaincre (gros bonus !), la pile Valeur 🎖️ toujours achetable, et la Corruption 🕷️ qui te retire des PV." },
+  { target: "path", emoji: "🗺️", title: "Le Chemin",
+    text: "5 cartes à acheter, regarnies chaque tour depuis le Deck principal. Clique une carte abordable pour la prendre." },
+  { target: "hud", emoji: "⚡", title: "Ton Pouvoir",
+    text: "Le Pouvoir ⚡ que tes cartes génèrent ce tour — c'est ta monnaie pour acheter et vaincre. Avec tes compteurs perso." },
+  { target: "controls", emoji: "🎮", title: "Jouer & finir",
+    text: "« Tout jouer » déclenche tes cartes, puis « Fin du tour » défausse tout et te repioche une main de 5." },
+  { target: "hand", emoji: "✋", title: "Ta main",
+    text: "Survole une carte pour la Jouer ou l'Agrandir. C'est d'ici que part chaque tour. Voyons les règles complètes !" },
+];
 
 export default function GameBoard({ session, onQuit }) {
   const [id] = useState(session.id);
@@ -20,13 +40,15 @@ export default function GameBoard({ session, onQuit }) {
   const [revealDismissed, setRevealDismissed] = useState(null);
   const [secondsLeft, setSecondsLeft] = useState(null);
   const [showTuto, setShowTuto] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const [isHost] = useState(session.isHost);
   const [botDelayMs, setBotDelayMs] = useState(session.botDelayMs ?? 10000);
 
-  // Propose le tutoriel une fois (au 1er tour) tant qu'il n'a pas été vu.
+  // À la 1re visite : on lance la visite guidée (qui se termine sur la modale
+  // des règles). Ensuite, les deux restent accessibles via les boutons du haut.
   useEffect(() => {
     if (!localStorage.getItem("lotr_tuto_seen")) {
-      setShowTuto(true);
+      setShowTour(true);
       localStorage.setItem("lotr_tuto_seen", "1");
     }
   }, []);
@@ -155,7 +177,7 @@ export default function GameBoard({ session, onQuit }) {
 
   return (
     <div className="board">
-      <div className="board__top">
+      <div className="board__top" data-tour="header">
         <h1 className="board__title">⚔️ La Communauté de l'Anneau</h1>
         <span className="board__turn">
           Tour {state.turn} ·{" "}
@@ -182,6 +204,9 @@ export default function GameBoard({ session, onQuit }) {
               </select>
             </label>
           )}
+          <button className="gbtn gbtn--ghost" onClick={() => setShowTour(true)} title="Faire le tour du plateau">
+            🧭 Visite guidée
+          </button>
           <button className={`gbtn gbtn--ghost help-btn ${state.turn === 1 ? "help-btn--pulse" : ""}`} onClick={() => setShowTuto(true)}>
             ❓ Comment jouer
           </button>
@@ -190,6 +215,15 @@ export default function GameBoard({ session, onQuit }) {
       </div>
 
       {showTuto && <Tutorial onClose={() => setShowTuto(false)} />}
+      {showTour && (
+        <GuidedTour
+          steps={TOUR_STEPS}
+          onFinish={(openTutorial) => {
+            setShowTour(false);
+            if (openTutorial) setShowTuto(true);
+          }}
+        />
+      )}
 
       {state.groupAmbush && !(state.groupAmbush.done && gaDismissed) && (
         <GroupAmbushAlert
@@ -206,7 +240,7 @@ export default function GameBoard({ session, onQuit }) {
         <div className="board__head-info">
       {/* Adversaires (mains cachées : compteurs seulement) */}
       {opponents.length > 0 && (
-        <div className="opponents">
+        <div className="opponents" data-tour="opponents">
           {opponents.map((p) => (
             <div key={p.seat} className={`opp ${p.seat === state.activeSeat ? "opp--active" : ""}`}>
               <div className="opp__n">{p.kind === "bot" ? "" : "🧑 "}{p.pseudo}</div>
@@ -286,7 +320,7 @@ export default function GameBoard({ session, onQuit }) {
 
         </div>{/* /board__head-info */}
 
-        <div className="board__head-piles">
+        <div className="board__head-piles" data-tour="piles">
           {/* Ennemi Principal · Valeur · Corruption (compact, en haut à droite) */}
           <div className="zone zone--piles">
             <div className="zone__label">Ennemi Principal &amp; piles</div>
@@ -318,7 +352,7 @@ export default function GameBoard({ session, onQuit }) {
       </div>{/* /board__head */}
 
       {/* Deck principal + Chemin sur la même ligne */}
-      <div className="zone">
+      <div className="zone" data-tour="path">
         <div className="zone__label">Deck principal &amp; Chemin — clique une carte abordable pour l'acheter</div>
         <div className="row">
           <div className="deck-pile" title="Deck principal (pioche du Chemin)">
@@ -347,14 +381,14 @@ export default function GameBoard({ session, onQuit }) {
       </div>
 
       {/* HUD + contrôles */}
-      <div className="hud">
+      <div className="hud" data-tour="hud">
         <span className="hud__power">⚡ {power}</span>
         <span className="hud__stat">Pouvoir</span>
         <span className="hud__stat">🂠 Deck : {me.deckCount}</span>
         <span className="hud__stat">🗑️ Défausse : {me.discardCount}</span>
         <span className="hud__stat">🛒 Achats : {me.boughtThisTurn}</span>
       </div>
-      <div className="controls">
+      <div className="controls" data-tour="controls">
         <button className="gbtn" disabled={busy || !isMyTurn || me.handCount === 0} onClick={() => act("play-all")}>▶️ Tout jouer</button>
         {state.canUndo && (
           <button className="gbtn gbtn--ghost" disabled={busy} title="Remet la dernière carte jouée dans ta main" onClick={() => act("undo-play")}>↩️ Reprendre la dernière carte</button>
@@ -398,7 +432,7 @@ export default function GameBoard({ session, onQuit }) {
       )}
 
       {/* Ta pioche & ta défausse + ta main */}
-      <div className="zone">
+      <div className="zone" data-tour="hand">
         <div className="zone__label">Ta pioche, ta défausse &amp; ta main — survole une carte pour la Jouer ou l'Agrandir</div>
         <div className="row">
           <div className="deck-pile" title="Ta pioche (face cachée)">
