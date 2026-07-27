@@ -557,6 +557,27 @@ class GameEngine
             return;
         }
 
+        // Ulaire Nelya : chaque joueur (en commençant par l'actif) devine le coût
+        // (1-7) de la carte du dessus du deck principal, puis la révèle. Juste →
+        // il la gagne en main ; faux → elle passe sous le paquet et il prend 1 Corruption.
+        if ($code === 'ulaire-nelya') {
+            $state['groupAmbush']['mode'] = 'guessCost';
+            $n = \count($state['players']);
+            $queued = 0;
+            for ($k = 0; $k < $n; ++$k) {
+                $seat = ($state['activeSeat'] + $k) % $n;
+                $this->queueEffect($state, ['op' => 'guessCost', 'kind' => 'neg', 'seat' => $seat,
+                    'source' => $code, 'sourceName' => $name,
+                    'label' => sprintf('⚔️ %s : devine le coût (1-7) de la carte du dessus du deck', $name)]);
+                ++$queued;
+            }
+            if ($queued === 0) {
+                $this->finalizeGroupAmbush($state);
+            }
+
+            return;
+        }
+
         $queued = 0;
         foreach ($state['players'] as $p) {
             if (empty($p['hand'])) {
@@ -571,6 +592,14 @@ class GameEngine
         if ($queued === 0) {
             $this->resolveGroupAmbush($state);
         }
+    }
+
+    /** Clôture commune d'une Embuscade de Groupe (marque résolue + reprend le tour différé). */
+    private function finalizeGroupAmbush(array &$state, array $revealedCodes = []): void
+    {
+        $state['groupAmbush']['done'] = true;
+        $this->publicReveal($state, $state['groupAmbush']['name'], sprintf('⚔️ Embuscade de Groupe de %s — issues', $state['groupAmbush']['name']), $revealedCodes);
+        $this->startDeferredTurn($state);
     }
 
     /** Résout l'Embuscade de Groupe une fois que tous les joueurs ont révélé leur carte. */
@@ -942,6 +971,9 @@ class GameEngine
                 $this->applyAttackAuto($state, $player, $step['code']);
                 break;
             case 'groupReveal': // Embuscade de Groupe : ce joueur révèle une carte de sa main
+                if (empty($state['groupAmbush'])) {
+                    break; // embuscade déjà effacée : effet résiduel → no-op (pas d'auto-création)
+                }
                 $riid = (int) ($payload['iid'] ?? 0);
                 $chosen = \in_array($riid, $player['hand'], true) ? $riid : ($player['hand'][0] ?? null);
                 $state['groupAmbush']['reveals'][$seat] = $chosen;
@@ -956,6 +988,48 @@ class GameEngine
                 if ($remaining === 0) {
                     array_splice($state['effects'], $idx, 1); // retire l'effet courant
                     $this->resolveGroupAmbush($state);         // puis résout la comparaison
+
+                    return;
+                }
+                break;
+            case 'guessCost': // Ulaire Nelya : devine le coût du dessus du deck principal
+                if (empty($state['groupAmbush'])) {
+                    break; // embuscade déjà effacée : effet résiduel → no-op
+                }
+                $guess = (int) ($payload['guess'] ?? 0);
+                if (!empty($state['mainDeck'])) {
+                    $top = array_shift($state['mainDeck']);
+                    $tdef = $this->def($state, $top);
+                    $tcost = (int) ($tdef['cost'] ?? 0);
+                    $state['groupAmbush']['reveals'][$seat] = $top; // carte révélée (publique)
+                    if ($guess === $tcost) {
+                        $player['hand'][] = $top;
+                        $state['groupAmbush']['outcomes'][$seat][] = ['type' => 'gain', 'card' => $tdef['name'], 'guess' => $guess, 'cost' => $tcost];
+                        $this->log($state, sprintf('%s devine %d → %s (coût %d) : GAGNÉE en main !', $player['pseudo'], $guess, $tdef['name'], $tcost));
+                    } else {
+                        $state['mainDeck'][] = $top; // repart sous le paquet principal
+                        $this->gainCorruption($state, $player);
+                        $state['groupAmbush']['outcomes'][$seat][] = ['type' => 'miss', 'card' => $tdef['name'], 'guess' => $guess, 'cost' => $tcost];
+                        $this->log($state, sprintf('%s devine %d → %s (coût %d) : raté, sous le paquet + 1 Corruption.', $player['pseudo'], $guess, $tdef['name'], $tcost));
+                    }
+                } else {
+                    $state['groupAmbush']['reveals'][$seat] = null;
+                }
+                $remaining = 0;
+                foreach ($state['effects'] as $ge) {
+                    if (($ge['op'] ?? '') === 'guessCost' && $ge['eid'] !== $eid) {
+                        ++$remaining;
+                    }
+                }
+                if ($remaining === 0) {
+                    array_splice($state['effects'], $idx, 1);
+                    $revealed = [];
+                    foreach ($state['groupAmbush']['reveals'] as $riid) {
+                        if ($riid !== null) {
+                            $revealed[] = $this->def($state, $riid)['code'];
+                        }
+                    }
+                    $this->finalizeGroupAmbush($state, $revealed);
 
                     return;
                 }

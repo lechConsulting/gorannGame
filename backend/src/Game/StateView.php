@@ -162,38 +162,46 @@ class StateView
             return null;
         }
         $done = !empty($ga['done']);
+        $mode = $ga['mode'] ?? 'reveal'; // 'reveal' (main) | 'guessCost' (Ulaire Nelya)
         $players = [];
         foreach ($state['players'] as $p) {
             $seat = $p['seat'];
             $isMe = $viewerSeat !== null && $seat === $viewerSeat;
             $revealedIid = $ga['reveals'][$seat] ?? null;
-            // Révélation SIMULTANÉE : on ne montre la carte d'un autre joueur
-            // qu'à la résolution (done). Le viewer voit sa propre carte.
-            $showCard = $revealedIid !== null && ($isMe || $done);
+            // En mode 'reveal' : révélation SIMULTANÉE (carte des autres cachée
+            // jusqu'à la résolution). En mode 'guessCost' : chaque révélation du
+            // deck principal est publique → on la montre dès qu'elle a lieu.
+            $showCard = $revealedIid !== null && ($isMe || $done || $mode === 'guessCost');
             $players[] = [
                 'seat' => $seat,
                 'pseudo' => $p['pseudo'],
                 'kind' => $p['kind'] ?? 'human',
                 'isMe' => $isMe,
                 'revealed' => \array_key_exists($seat, $ga['reveals']),
-                'hasRevealed' => $revealedIid !== null, // a bien révélé une carte (mais peut être cachée)
+                'hasRevealed' => $revealedIid !== null,
                 'card' => $showCard ? $this->cardDef($this->engine->def($state, $revealedIid)) : null,
-                'outcome' => $done ? ($ga['outcomes'][$seat] ?? []) : [],
+                // Les issues du guessCost (gagné/raté) sont publiques immédiatement.
+                'outcome' => ($done || $mode === 'guessCost') ? ($ga['outcomes'][$seat] ?? []) : [],
             ];
         }
-        // Le viewer doit-il révéler ? (effet groupReveal sur son siège)
+        // Le viewer a-t-il une action en attente ? (groupReveal ou guessCost sur son siège)
         $myEid = null;
+        $myOp = null;
         $myOptions = [];
         if ($viewerSeat !== null) {
             foreach ($state['effects'] as $e) {
-                if (($e['op'] ?? '') === 'groupReveal' && ($e['seat'] ?? $state['activeSeat']) === $viewerSeat) {
+                $op = $e['op'] ?? '';
+                if (($op === 'groupReveal' || $op === 'guessCost') && ($e['seat'] ?? $state['activeSeat']) === $viewerSeat) {
                     $myEid = $e['eid'];
-                    foreach ($state['players'] as $vp) {
-                        if ($vp['seat'] === $viewerSeat) {
-                            foreach ($vp['hand'] as $iid) {
-                                $myOptions[] = ['iid' => $iid] + $this->cardDef($this->engine->def($state, $iid));
+                    $myOp = $op;
+                    if ($op === 'groupReveal') {
+                        foreach ($state['players'] as $vp) {
+                            if ($vp['seat'] === $viewerSeat) {
+                                foreach ($vp['hand'] as $iid) {
+                                    $myOptions[] = ['iid' => $iid] + $this->cardDef($this->engine->def($state, $iid));
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
                     break;
@@ -201,8 +209,8 @@ class StateView
             }
         }
 
-        return ['name' => $ga['name'], 'text' => $ga['text'] ?? '', 'done' => !empty($ga['done']),
-            'auto' => !empty($ga['auto']), 'players' => $players, 'myEid' => $myEid, 'myOptions' => $myOptions];
+        return ['name' => $ga['name'], 'text' => $ga['text'] ?? '', 'done' => $done, 'mode' => $mode,
+            'auto' => !empty($ga['auto']), 'players' => $players, 'myEid' => $myEid, 'myOp' => $myOp, 'myOptions' => $myOptions];
     }
 
     /** Hydrate la révélation publique en cours (codes → cartes). */

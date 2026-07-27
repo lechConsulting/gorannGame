@@ -441,3 +441,8 @@
   color: #d7c9a0; background: rgba(255,255,255,0.04);
   border-left: 3px solid #b7a97f; border-radius: 4px; padding: 0.35rem 0.6rem;
 }
+
+/* Ulaire Nelya : sélecteur de coût (1-7) */
+.ga-guess { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.3rem; }
+.ga-guess__btn { padding: 0.45rem 0.7rem; font-size: 1rem; min-width: 2.2rem; }
+.ga-block__out--good { color: #9be0b4; }

@@ -120,6 +120,9 @@ class BotPlayer
     private function choosePayload(array $state, array $player, array $step): array
     {
         switch ($step['op']) {
+            case 'guessCost': // Ulaire Nelya : devine un coût au hasard (1-7)
+                return ['guess' => random_int(1, 7)];
+
             case 'nameType':
             case 'nameTypeMain':
                 return ['value' => $this->mostCommonPathType($state)];

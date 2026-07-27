@@ -255,6 +255,7 @@ export default function GameBoard({ session, onQuit }) {
           data={state.groupAmbush}
           busy={busy}
           onReveal={(eid, iid) => applyEff(eid, { iid })}
+          onGuess={(eid, guess) => applyEff(eid, { guess })}
           onClose={() => setGaDismissed(true)}
         />
       )}
