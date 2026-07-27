@@ -1567,6 +1567,24 @@ class GameEngine
                 array_unshift($player['deck'], array_shift($state['mainDeck']));
                 $this->log($state, sprintf('%s prend le dessus du deck principal sur son deck (Veste de Mithril).', $player['pseudo']));
             }
+            if ($code === 'bouclier-de-boromir') {
+                // « … piochez une carte. Si vous évitez une Embuscade d'une carte
+                // retournée du sentier, vous pouvez obtenir cette carte en main. »
+                $this->draw($state, $player, 1);
+                $this->log($state, sprintf('%s pioche 1 carte (Bouclier de Boromir).', $player['pseudo']));
+                $srcCode = $step['source'] ?? ($step['code'] ?? null);
+                if ($srcCode !== null) {
+                    foreach ($state['path'] as $pi => $piid) {
+                        if ($this->def($state, $piid)['code'] === $srcCode) {
+                            array_splice($state['path'], $pi, 1);
+                            $player['hand'][] = $piid;
+                            $this->log($state, sprintf('%s obtient %s du Chemin en main (Bouclier de Boromir).', $player['pseudo'], $this->def($state, $piid)['name']));
+                            $this->refillPath($state); // regarnit le trou laissé dans le Chemin
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         // Ulaire Ostea : si la cible évite l'Attaque, la carte donnée est DÉTRUITE
