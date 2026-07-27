@@ -37,6 +37,12 @@ export default function GameBoard({ session, onQuit }) {
   const [deflect, setDeflect] = useState(null); // { eid, iid } en cours de choix de cible
   const [gaDismissed, setGaDismissed] = useState(false);
   const [showEffects, setShowEffects] = useState(true);
+  // Actions optionnelles mises en sourdine par le joueur (par `op`, ex. "destroy") :
+  // elles ne rouvrent plus la modale automatiquement. Persisté dans le navigateur.
+  const [mutedOps, setMutedOps] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem("lotr_muted_ops") || "[]")); }
+    catch { return new Set(); }
+  });
   const [recapDismissed, setRecapDismissed] = useState(null); // clé du récap masqué
   const [revealDismissed, setRevealDismissed] = useState(null);
   const [secondsLeft, setSecondsLeft] = useState(null);
@@ -57,11 +63,19 @@ export default function GameBoard({ session, onQuit }) {
   const effects = state.effects || [];
   const mandatoryLeft = effects.some((e) => e.kind === "neg" && e.applicable);
   // Ouvre automatiquement la liste pour les effets PONCTUELS (pas les permanents
-  // activables comme Isengard, qu'on peut déclencher quand on veut dans le tour).
-  const oneShotCount = effects.filter((e) => !e.permanent).length;
+  // activables comme Isengard), SAUF les actions optionnelles mises en sourdine
+  // par le joueur (« ne plus me demander », par type d'action) : elles restent
+  // accessibles à la demande via le bouton « ⚡ Effets à appliquer ».
+  const autoOpenCount = effects.filter(
+    (e) => !e.permanent && (e.kind === "neg" || !mutedOps.has(e.op)),
+  ).length;
+  // S'ouvre quand une action mérite l'attention ; se REFERME quand il ne reste
+  // que des actions en sourdine (accessibles à la demande via le bouton ⚡).
+  // Ne se déclenche qu'au CHANGEMENT du compteur → un « Plus tard » manuel tient,
+  // et une ouverture manuelle (compteur inchangé) n'est pas refermée.
   useEffect(() => {
-    if (oneShotCount > 0) setShowEffects(true);
-  }, [oneShotCount]);
+    setShowEffects(autoOpenCount > 0);
+  }, [autoOpenCount]);
 
   // Temps réel : re-fetch l'état masqué à chaque ping Mercure (+ sondage). Quand
   // c'est au tour d'un bot, on appelle `tick` (qui fait avancer le bot une fois
@@ -142,6 +156,16 @@ export default function GameBoard({ session, onQuit }) {
     } finally {
       setBusy(false);
     }
+  }
+
+  // Active/désactive la sourdine d'un type d'action (persisté dans le navigateur).
+  function toggleMuteOp(op) {
+    setMutedOps((prev) => {
+      const next = new Set(prev);
+      if (next.has(op)) next.delete(op); else next.add(op);
+      try { localStorage.setItem("lotr_muted_ops", JSON.stringify([...next])); } catch { /* quota */ }
+      return next;
+    });
   }
 
   const arch = state.stacks.archenemy;
@@ -667,6 +691,19 @@ export default function GameBoard({ session, onQuit }) {
                       {e.optional && e.op !== "reveal" && !e.permanent && (
                         <button className="gbtn gbtn--ghost" disabled={busy} onClick={() => skipEff(e.eid)}>
                           {e.op === "putOnDeck" ? "Ne rien remettre" : "Passer"}
+                        </button>
+                      )}
+                      {e.kind !== "neg" && (
+                        <button
+                          className="gbtn gbtn--ghost"
+                          style={{ fontSize: "0.78rem", opacity: 0.75 }}
+                          disabled={busy}
+                          title={mutedOps.has(e.op)
+                            ? "Réafficher automatiquement ce type d'action"
+                            : "Ne plus ouvrir automatiquement ce type d'action (reste accessible via ⚡ Effets à appliquer)"}
+                          onClick={() => toggleMuteOp(e.op)}
+                        >
+                          {mutedOps.has(e.op) ? "🔔 Réafficher" : "🔕 Ne plus me demander"}
                         </button>
                       )}
                     </div>
