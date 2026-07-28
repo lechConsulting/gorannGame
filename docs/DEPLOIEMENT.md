@@ -30,7 +30,8 @@ Internet ─▶ nginx de l'hôte (déjà là) ─┬─▶ tes autres sites     
 
 ## 2. Prérequis sur le serveur
 
-Connecte-toi : `ssh root@51.210.111.212`, puis vérifie ce qui est déjà présent :
+Connecte-toi : `ssh ubuntu@51.210.111.212 -p 3675` (port SSH **non standard**), puis
+vérifie ce qui est déjà présent :
 
 ```bash
 docker --version && docker compose version   # Docker installé ?
@@ -49,8 +50,12 @@ certbot --version                              # outil de certificat HTTPS ?
 
 ## 3. Récupérer le code
 
+> ℹ️ **Sur ce serveur, le dépôt est déjà cloné dans `/var/www/gorann`** (et non
+> `/opt/gorann`). Les commandes ci-dessous utilisent `/var/www/gorann` ; adapte
+> le chemin si tu réinstalles ailleurs.
+
 ```bash
-cd /opt                     # ou /srv, où tu ranges tes projets
+cd /var/www                 # emplacement utilisé sur ce serveur
 git clone git@github.com:lechConsulting/gorannGame.git gorann
 cd gorann
 ```
@@ -152,7 +157,7 @@ et la redirection HTTP→HTTPS, et programme le renouvellement automatique.
 **En une seule commande** (recommandé) :
 
 ```bash
-/opt/gorann/deploy/update.sh
+/var/www/gorann/deploy/update.sh
 ```
 
 Le script enchaîne : `git pull` → rebuild & redémarrage Docker → attente que le
@@ -164,7 +169,7 @@ manque ou si le backend ne répond pas.
 <summary>Équivalent manuel</summary>
 
 ```bash
-cd /opt/gorann
+cd /var/www/gorann
 git pull
 docker compose --env-file deploy/.env -f compose.prod.yaml up -d --build
 # une fois le conteneur php prêt (migrations appliquées) :

@@ -2,8 +2,10 @@
 # ---------------------------------------------------------------------------
 # Mise à jour de l'application en PRODUCTION — en une seule commande.
 #
-# À lancer sur le VPS, depuis n'importe où (le script se recale tout seul) :
-#     /opt/gorann/deploy/update.sh
+# À lancer sur le VPS, depuis n'importe où (le script se recale tout seul).
+# Sur ce serveur le dépôt est dans /var/www/gorann :
+#     /var/www/gorann/deploy/update.sh
+# (SSH : ssh ubuntu@51.210.111.212 -p 3675)
 #
 # Étapes : git pull → (re)build & redémarrage Docker → attente que le backend
 # soit prêt (les migrations s'appliquent au démarrage) → promotion du
