@@ -301,6 +301,20 @@
 .opp__n { font-weight: 800; font-size: 0.85rem; }
 .opp__h { font-size: 0.72rem; color: #e9d8a6; opacity: 0.85; }
 .opp__stats { display: flex; gap: 0.6rem; font-size: 0.72rem; opacity: 0.85; margin-top: 0.2rem; }
+.opp__hist, .hud__hist {
+  margin-top: 0.35rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px; padding: 0.2rem 0.5rem; color: #e8e6df; font-size: 0.72rem; cursor: pointer;
+}
+.hud__hist { margin-top: 0; margin-left: auto; }
+.opp__hist:hover, .hud__hist:hover { background: rgba(255,255,255,0.16); }
+
+/* Historique des 3 derniers tours (modal par joueur) */
+.hist-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.hist-turn {
+  background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 0.6rem 0.8rem;
+}
+.hist-turn__h { font-weight: 800; font-size: 0.8rem; color: #9be0b4; margin-bottom: 0.35rem; }
 
 /* Indicateur « X est en train de jouer » */
 .turn-note {

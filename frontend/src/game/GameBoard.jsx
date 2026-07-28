@@ -34,6 +34,7 @@ export default function GameBoard({ session, onQuit }) {
   const [showDiscard, setShowDiscard] = useState(false);
   const [preview, setPreview] = useState(null);
   const [cardView, setCardView] = useState(null); // carte affichée en lecture seule (récap)
+  const [historyOf, setHistoryOf] = useState(null); // siège du joueur dont on consulte l'historique
   const [deflect, setDeflect] = useState(null); // { eid, iid } en cours de choix de cible
   const [gaDismissed, setGaDismissed] = useState(false);
   const [showEffects, setShowEffects] = useState(true);
@@ -278,6 +279,10 @@ export default function GameBoard({ session, onQuit }) {
                 <span>🗑️ {p.discardCount}</span>
                 {p.seat === state.activeSeat && <span>⚡ {p.power}</span>}
               </div>
+              {p.history?.length > 0 && (
+                <button className="opp__hist" onClick={() => setHistoryOf(p.seat)}
+                  title="Voir les 3 dernières actions">🕑 3 derniers tours</button>
+              )}
             </div>
           ))}
         </div>
@@ -418,6 +423,10 @@ export default function GameBoard({ session, onQuit }) {
         <span className="hud__stat">🂠 Deck : {me.deckCount}</span>
         <span className="hud__stat">🗑️ Défausse : {me.discardCount}</span>
         <span className="hud__stat">🛒 Achats : {me.boughtThisTurn}</span>
+        {me.history?.length > 0 && (
+          <button className="hud__hist" onClick={() => setHistoryOf(me.seat)}
+            title="Voir tes 3 dernières actions">🕑 3 derniers tours</button>
+        )}
       </div>
       <div className="controls" data-tour="controls">
         <button className="gbtn" disabled={busy || !isMyTurn || me.handCount === 0} onClick={() => act("play-all")}>▶️ Tout jouer</button>
@@ -567,6 +576,48 @@ export default function GameBoard({ session, onQuit }) {
           </div>
         </div>
       )}
+
+      {/* Modal : 3 dernières actions d'un joueur (récaps successifs) */}
+      {historyOf !== null && (() => {
+        const p = state.players.find((pl) => pl.seat === historyOf);
+        const hist = p?.history ?? [];
+        return (
+          <div className="modal-overlay" onClick={() => setHistoryOf(null)}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal__head">
+                <h3>{p?.kind === "bot" ? "" : "🧑 "}{p?.pseudo} — 3 dernières actions</h3>
+                <button className="gbtn gbtn--ghost" onClick={() => setHistoryOf(null)}>Fermer</button>
+              </div>
+              <div className="hist-list" style={{ maxHeight: "60vh", overflowY: "auto" }}>
+                {hist.length === 0 && <p style={{ opacity: 0.7 }}>Aucun tour terminé pour le moment.</p>}
+                {hist.map((r, ri) => (
+                  <div key={ri} className="hist-turn">
+                    <div className="hist-turn__h">Tour {r.turn}</div>
+                    <div className="recap__stats">
+                      <span>⚡ {r.power} Pouvoir généré</span>
+                      <span>🃏 {r.played} carte(s) jouée(s)</span>
+                      <span className="recap__buys">🛒 {r.bought.length
+                        ? r.bought.map((c, i) => (
+                            <button key={i} className="chip" disabled={!c.code} title={c.code ? "Voir la carte" : undefined}
+                              onClick={c.code ? () => setCardView(c) : undefined}>{c.name}</button>
+                          ))
+                        : "aucun achat"}</span>
+                    </div>
+                    {r.events?.length > 0 && (
+                      <div className="recap__events">
+                        {r.events.map((ev, i) => (
+                          <button key={i} className="chip chip--evt" disabled={!ev.card} title={ev.card ? "Voir la carte" : undefined}
+                            onClick={ev.card ? () => setCardView(ev.card) : undefined}>{ev.label}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Modal : consulter la défausse */}
       {showDiscard && (

@@ -43,6 +43,12 @@ class StateView
                 'discard' => $this->cards($state, $p['discard']),
                 'boughtThisTurn' => $p['boughtThisTurn'],
                 'archenemyDiscount' => $p['archenemyDiscount'] ?? 0,
+                // Historique des 3 derniers tours de ce joueur (le plus récent
+                // en premier), avec cartes achetées et gagnées hydratées.
+                'history' => array_reverse(array_map(
+                    fn ($r) => $this->hydrateRecap($r),
+                    $state['recapHistory'][$p['seat']] ?? [],
+                )),
             ];
         }
 
@@ -130,6 +136,12 @@ class StateView
             return null;
         }
 
+        return $this->hydrateRecap($r);
+    }
+
+    /** Transforme un récap brut (codes) en récap prêt pour le front (cartes cliquables). */
+    private function hydrateRecap(array $r): array
+    {
         $bought = [];
         foreach ($r['bought'] ?? [] as $b) {
             if (\is_string($b) && $this->catalog->has($b)) {

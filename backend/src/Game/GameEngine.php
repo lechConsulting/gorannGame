@@ -334,6 +334,12 @@ class GameEngine
             'events' => $player['eventsThisTurn'] ?? [],       // [{label, code?}]
         ];
 
+        // Historique par joueur : on conserve les 3 derniers récaps de ce siège
+        // (le plus récent en dernier), consultable à tout moment côté front.
+        $seat = $player['seat'];
+        $state['recapHistory'][$seat][] = $state['lastRecap'];
+        $state['recapHistory'][$seat] = \array_slice($state['recapHistory'][$seat], -3);
+
         // Cartes à détruire en fin de tour (jouées via Tambours) → retirées du jeu.
         foreach ($player['toDestroy'] ?? [] as $diid) {
             foreach (['playedThisTurn', 'inPlay'] as $zone) {
