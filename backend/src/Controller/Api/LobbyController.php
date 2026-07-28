@@ -82,9 +82,14 @@ class LobbyController extends AbstractController
         $session->setMaxPlayers($maxPlayers);
         $session->setStatus(SessionStatus::Waiting);
         $session->setCreatedBy($user);
+        // Mode Aléatoire par défaut : le créateur reçoit un héros au hasard.
+        $this->catalog->load($game);
+        $creatorSeat = $this->humanSeat($user, $data['pseudo'] ?? null);
+        $creatorSeat['hero'] = $this->randomFreeHero([]);
         $session->setState(['lobby' => [
             'slug' => $slug,
-            'seats' => [$this->humanSeat($user, $data['pseudo'] ?? null)],
+            'heroMode' => 'random', // 'random' (défaut) | 'choice'
+            'seats' => [$creatorSeat],
         ]]);
         $this->em->persist($session);
         $this->em->flush();
@@ -119,7 +124,12 @@ class LobbyController extends AbstractController
             return $this->json(['error' => 'La table est complète.'], 409);
         }
 
-        $seats[] = $this->humanSeat($user, $data['pseudo'] ?? null);
+        $seat = $this->humanSeat($user, $data['pseudo'] ?? null);
+        if (($state['lobby']['heroMode'] ?? 'random') === 'random') {
+            $this->catalog->load($session->getGame());
+            $seat['hero'] = $this->randomFreeHero($seats); // héros au hasard à l'arrivée
+        }
+        $seats[] = $seat;
         $session->setState($state);
         $this->em->flush();
         $this->publisher->pingLobby($session->getId());
@@ -188,6 +198,9 @@ class LobbyController extends AbstractController
         }
 
         $state = $session->getState();
+        if (($state['lobby']['heroMode'] ?? 'random') === 'random') {
+            return $this->json(['error' => 'Mode aléatoire : les héros sont tirés au sort.'], 409);
+        }
         $seats = &$state['lobby']['seats'];
         $target = $this->resolveTargetSeat($seats, $user, $session, isset($data['seat']) ? (int) $data['seat'] : null);
         if ($target === null) {
@@ -207,6 +220,31 @@ class LobbyController extends AbstractController
         return $this->json($this->lobbyView($session, $user));
     }
 
+    /** L'hôte règle le mode de sélection des héros. Body: { mode } (random|choice).
+     *  Passer/repasser en 'random' tire au sort de nouveaux héros pour tous. */
+    #[Route('/{id}/hero-mode', name: 'api_lobby_hero_mode', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function heroMode(int $id, Request $request): JsonResponse
+    {
+        [$session, $err] = $this->waitingSession($id, hostOnly: true);
+        if ($err) {
+            return $err;
+        }
+        $data = json_decode($request->getContent(), true) ?? [];
+        $mode = ($data['mode'] ?? 'random') === 'choice' ? 'choice' : 'random';
+
+        $state = $session->getState();
+        $state['lobby']['heroMode'] = $mode;
+        if ($mode === 'random') {
+            $this->catalog->load($session->getGame());
+            $this->assignRandomHeroes($state['lobby']['seats']); // (re)tirage pour tous
+        }
+        $session->setState($state);
+        $this->em->flush();
+        $this->publisher->pingLobby($session->getId());
+
+        return $this->json($this->lobbyView($session, $this->currentUser()));
+    }
+
     /** L'hôte ajoute un joueur automatique au prochain siège libre. */
     #[Route('/{id}/bot', name: 'api_lobby_bot', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function addBot(int $id): JsonResponse
@@ -222,7 +260,9 @@ class LobbyController extends AbstractController
         }
 
         $this->catalog->load($session->getGame());
-        $hero = $this->firstFreeHero($seats);
+        $hero = ($state['lobby']['heroMode'] ?? 'random') === 'random'
+            ? $this->randomFreeHero($seats)
+            : $this->firstFreeHero($seats);
         if ($hero === null) {
             return $this->json(['error' => 'Plus de héros disponible.'], 409);
         }
@@ -405,6 +445,25 @@ class LobbyController extends AbstractController
         return null;
     }
 
+    /** Un héros libre AU HASARD (distinct des héros déjà pris). */
+    private function randomFreeHero(array $seats): ?string
+    {
+        $used = array_filter(array_map(static fn ($s) => $s['hero'] ?? null, $seats));
+        $free = array_values(array_diff(array_keys($this->catalog->allHeroes()), $used));
+
+        return empty($free) ? null : $free[array_rand($free)];
+    }
+
+    /** Réattribue à chaque siège un héros aléatoire DISTINCT (mode Aléatoire). */
+    private function assignRandomHeroes(array &$seats): void
+    {
+        $all = array_keys($this->catalog->allHeroes());
+        shuffle($all);
+        foreach ($seats as $i => $s) {
+            $seats[$i]['hero'] = array_shift($all);
+        }
+    }
+
     private function lobbyView(GameSession $session, User $user): array
     {
         // Partie déjà lancée : le front doit basculer vers le plateau.
@@ -439,6 +498,7 @@ class LobbyController extends AbstractController
             'isHost' => $isHost,
             'mySeat' => $mySeat,
             'maxPlayers' => $session->getMaxPlayers(),
+            'heroMode' => $session->getState()['lobby']['heroMode'] ?? 'random',
             'seats' => $rows,
         ];
     }

@@ -120,6 +120,7 @@ export const api = {
   lobbyJoin: (code, pseudo) => req("POST", "/api/lobby/join", { code, pseudo }, true),
   lobbyGet: (id) => req("GET", `/api/lobby/${id}`, null, true),
   lobbyHero: (id, hero, seat) => req("POST", `/api/lobby/${id}/hero`, { hero, seat }, true),
+  lobbyHeroMode: (id, mode) => req("POST", `/api/lobby/${id}/hero-mode`, { mode }, true),
   lobbyPseudo: (id, pseudo) => req("POST", `/api/lobby/${id}/pseudo`, { pseudo }, true),
   lobbyAddBot: (id) => req("POST", `/api/lobby/${id}/bot`, {}, true),
   lobbyBotLevel: (id, seat, level) => req("POST", `/api/lobby/${id}/bot-level`, { seat, level }, true),

@@ -95,7 +95,15 @@ class StateView
             'botMsRemaining' => $this->botMsRemaining($state),
             // Le viewer peut-il remettre sa dernière carte jouée en main ?
             'canUndo' => $this->canUndo($state, $viewerSeat),
-            'log' => \array_slice($state['log'], -30),
+            'log' => array_map(function ($l) {
+                if (\is_array($l)) { // entrée cliquable {t, code} → hydrate la carte
+                    $card = (!empty($l['code']) && $this->catalog->has($l['code'])) ? $this->cardDef($this->catalog->card($l['code'])) : null;
+
+                    return ['t' => $l['t'] ?? '', 'card' => $card];
+                }
+
+                return $l; // ligne texte simple
+            }, \array_slice($state['log'], -40)),
         ];
     }
 

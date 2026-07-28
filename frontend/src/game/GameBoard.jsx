@@ -379,7 +379,8 @@ export default function GameBoard({ session, onQuit }) {
         </div>{/* /board__head-piles */}
       </div>{/* /board__head */}
 
-      {/* Deck principal + Chemin sur la même ligne */}
+      {/* Chemin (gauche) + Historique cliquable (droite) */}
+      <div className="path-row">
       <div className="zone" data-tour="path">
         <div className="zone__label">Deck principal &amp; Chemin — clique une carte abordable pour l'acheter</div>
         <div className="row">
@@ -407,6 +408,8 @@ export default function GameBoard({ session, onQuit }) {
           </AnimatePresence>
         </div>
       </div>
+        <Log log={state.log} onCard={setCardView} title />
+      </div>
 
       {/* HUD + contrôles */}
       <div className="hud" data-tour="hud">
@@ -419,7 +422,7 @@ export default function GameBoard({ session, onQuit }) {
       <div className="controls" data-tour="controls">
         <button className="gbtn" disabled={busy || !isMyTurn || me.handCount === 0} onClick={() => act("play-all")}>▶️ Tout jouer</button>
         {state.canUndo && (
-          <button className="gbtn gbtn--ghost" disabled={busy} title="Remet la dernière carte jouée dans ta main" onClick={() => act("undo-play")}>↩️ Reprendre la dernière carte</button>
+          <button className="gbtn gbtn--ghost" disabled={busy} title="Annule ta dernière action (jouer, acheter, vaincre)" onClick={() => act("undo-play")}>↩️ Annuler la dernière action</button>
         )}
         {effects.length > 0 && !showEffects && (
           <button className="gbtn" onClick={() => setShowEffects(true)}>⚡ Effets à appliquer ({effects.length})</button>
@@ -502,7 +505,6 @@ export default function GameBoard({ session, onQuit }) {
       </div>
 
       <p className="error">{error}</p>
-      <Log log={state.log} />
 
       {/* Modal : aperçu d'une carte (Chemin/Valeur → Acheter, Ennemi Principal →
           Vaincre, Corruption → lecture seule). */}
@@ -729,10 +731,21 @@ export default function GameBoard({ session, onQuit }) {
   );
 }
 
-function Log({ log }) {
+function Log({ log, onCard, title }) {
   return (
     <div className="log">
-      {[...log].reverse().map((l, i) => <p key={i}>{l}</p>)}
+      {title && <div className="zone__label log__title">📜 Historique</div>}
+      {[...log].reverse().map((l, i) =>
+        typeof l === "string"
+          ? <p key={i}>{l}</p>
+          : (
+            <p key={i}>
+              {l.card && onCard
+                ? <button className="log__evt" title="Voir la carte" onClick={() => onCard(l.card)}>{l.t}</button>
+                : l.t}
+            </p>
+          ),
+      )}
     </div>
   );
 }

@@ -60,6 +60,7 @@ export default function WaitingRoom({ lobbyId, initial, onStart, onLeave }) {
   const seats = lobby.seats || [];
   const usedHeroes = seats.map((s) => s.hero).filter(Boolean);
   const mySeatRow = seats.find((s) => s.isMe);
+  const heroMode = lobby.heroMode ?? "random"; // 'random' (défaut) | 'choice'
   const allHeroesChosen = seats.every((s) => s.hero);
   const canStart = lobby.isHost && seats.length >= 2 && allHeroesChosen;
 
@@ -104,6 +105,26 @@ export default function WaitingRoom({ lobbyId, initial, onStart, onLeave }) {
       <div className="zone__label" style={{ textAlign: "center" }}>
         Joueurs ({seats.length}/{lobby.maxPlayers})
       </div>
+
+      {/* Mode de sélection des héros */}
+      <div className="hero-mode">
+        <span className="hero-mode__l">Héros :</span>
+        {lobby.isHost ? (
+          <>
+            <button className={`gbtn gbtn--sm ${heroMode === "random" ? "" : "gbtn--ghost"}`} disabled={busy}
+              onClick={() => call(() => api.lobbyHeroMode(lobbyId, "random"))}>🎲 Aléatoire</button>
+            <button className={`gbtn gbtn--sm ${heroMode === "choice" ? "" : "gbtn--ghost"}`} disabled={busy}
+              onClick={() => call(() => api.lobbyHeroMode(lobbyId, "choice"))}>✋ Choix libre</button>
+            {heroMode === "random" && (
+              <button className="gbtn gbtn--ghost gbtn--sm" disabled={busy} title="Retirer au sort les héros de tous"
+                onClick={() => call(() => api.lobbyHeroMode(lobbyId, "random"))}>🎲 Relancer</button>
+            )}
+          </>
+        ) : (
+          <span className="hero-mode__v">{heroMode === "random" ? "🎲 Aléatoire" : "✋ Choix libre"}</span>
+        )}
+      </div>
+
       <div className="seats">
         {seats.map((s) => (
           <div key={s.seat} className={`seat ${s.isMe ? "seat--me" : ""}`}>
@@ -121,7 +142,7 @@ export default function WaitingRoom({ lobbyId, initial, onStart, onLeave }) {
                 <span className="seat__ability" title={abilityOf(s.hero).text}> · {abilityOf(s.hero).name}</span>
               )}
             </div>
-            {lobby.isHost && s.kind === "bot" && (
+            {lobby.isHost && s.kind === "bot" && heroMode === "choice" && (
               <select
                 value={s.hero || ""}
                 disabled={busy}
@@ -162,10 +183,14 @@ export default function WaitingRoom({ lobbyId, initial, onStart, onLeave }) {
       </div>
 
       <div className="zone__label" style={{ textAlign: "center", marginTop: "1rem" }}>
-        {mySeatRow?.hero ? `Ton héros : ${mySeatRow.hero}` : "Choisis ton héros"}
+        {heroMode === "random"
+          ? (mySeatRow?.hero ? `🎲 Ton héros (tiré au sort) : ${mySeatRow.hero}` : "🎲 Héros aléatoires")
+          : (mySeatRow?.hero ? `Ton héros : ${mySeatRow.hero}` : "Choisis ton héros")}
       </div>
       <p style={{ textAlign: "center", opacity: 0.65, fontSize: "0.8rem", margin: "0 0 0.4rem" }}>
-        Survole un héros pour lire sa carte de départ (elle oriente ta stratégie du 1er tour).
+        {heroMode === "random"
+          ? "Survole un héros pour consulter sa carte de départ (le tien est tiré au sort)."
+          : "Survole un héros pour lire sa carte de départ (elle oriente ta stratégie du 1er tour)."}
       </p>
       <div className="heroes">
         {heroes.map((h) => {
@@ -174,8 +199,8 @@ export default function WaitingRoom({ lobbyId, initial, onStart, onLeave }) {
           return (
             <div
               key={h.name}
-              className={`hero-pick ${mySeatRow?.hero === h.name ? "hero-pick--on" : ""} ${takenByOther ? "hero-pick--off" : ""}`}
-              onClick={() => !busy && !takenByOther && call(() => api.lobbyHero(lobbyId, h.name))}
+              className={`hero-pick ${mySeatRow?.hero === h.name ? "hero-pick--on" : ""} ${takenByOther ? "hero-pick--off" : ""} ${heroMode === "random" ? "hero-pick--browse" : ""}`}
+              onClick={() => heroMode === "choice" && !busy && !takenByOther && call(() => api.lobbyHero(lobbyId, h.name))}
               onMouseEnter={() => setHovered(h.name)}
               onMouseLeave={() => setHovered((cur) => (cur === h.name ? null : cur))}
             >

@@ -269,7 +269,7 @@ class GameEngine
         $player['discard'][] = $this->newInstance($state, $code);
         $player['spentThisTurn'] = ($player['spentThisTurn'] ?? 0) + $cost;
         $player['eventsThisTurn'][] = ['label' => sprintf('⚔️ Vainc %s', $def['name']), 'code' => $code];
-        $this->log($state, sprintf('%s vainc %s (coût %d) !', $player['pseudo'], $def['name'], $cost));
+        $this->logEvent($state, sprintf('%s vainc %s (coût %d) !', $player['pseudo'], $def['name'], $cost), $code);
 
         if ($code === 'lurtz') {
             $this->endGame($state, 'Lurtz a été vaincu.');
@@ -447,7 +447,7 @@ class GameEngine
         $name = $this->catalog->card($code)['name'];
         $seat = $player['seat'];
         $player['eventsThisTurn'][] = ['label' => sprintf('⚠️ Embuscade : %s', $name), 'code' => $code];
-        $this->log($state, sprintf('⚠️ Embuscade de %s contre %s !', $name, $player['pseudo']));
+        $this->logEvent($state, sprintf('⚠️ Embuscade de %s contre %s !', $name, $player['pseudo']), $code);
         unset($player);
         $this->queueAmbushEffect($state, $code, $name, $seat);
     }
@@ -524,7 +524,7 @@ class GameEngine
     private function applyGroupAmbush(array &$state, string $code): void
     {
         $name = $this->catalog->card($code)['name'];
-        $this->log($state, sprintf('⚔️ Embuscade de Groupe : %s ! (inévitable, tous les joueurs)', $name));
+        $this->logEvent($state, sprintf('⚔️ Embuscade de Groupe : %s ! (inévitable, tous les joueurs)', $name), $code);
 
         // INTERACTIF (Saroumane / par défaut) : chaque joueur RÉVÈLE une carte de sa
         // main ; la comparaison des coûts est résolue quand tous ont révélé.
@@ -1972,7 +1972,7 @@ class GameEngine
         if ($undo === null
             || ($undo['seat'] ?? -1) !== ($state['activeSeat'] ?? -1)
             || ($undo['turn'] ?? -1) !== ($state['turn'] ?? -2)) {
-            throw new \RuntimeException('Aucune carte jouée à remettre en main.');
+            throw new \RuntimeException('Aucune action à annuler.');
         }
         // L'instantané ne contient pas la clé 'undo' → l'annulation est consommée.
         $state = $undo['snapshot'];
@@ -1987,6 +1987,16 @@ class GameEngine
     private function log(array &$state, string $msg): void
     {
         $state['log'][] = $msg;
+        if (\count($state['log']) > 200) {
+            $state['log'] = \array_slice($state['log'], -200);
+        }
+    }
+
+    /** Entrée de journal CLIQUABLE : liée à une carte (embuscade, défaite…) pour
+     *  consulter ce qui s'est passé (StateView hydrate le code en carte). */
+    private function logEvent(array &$state, string $msg, string $code): void
+    {
+        $state['log'][] = ['t' => $msg, 'code' => $code];
         if (\count($state['log']) > 200) {
             $state['log'] = \array_slice($state['log'], -200);
         }
