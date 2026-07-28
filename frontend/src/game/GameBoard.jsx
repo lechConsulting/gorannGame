@@ -37,6 +37,8 @@ export default function GameBoard({ session, onQuit }) {
   const [historyOf, setHistoryOf] = useState(null); // siège du joueur dont on consulte l'historique
   const [deflect, setDeflect] = useState(null); // { eid, iid } en cours de choix de cible
   const [gaDismissed, setGaDismissed] = useState(false);
+  const [gaHold, setGaHold] = useState(null); // embuscade résolue figée, maintenue affichée 2 min
+  const gaTimer = useRef(null);
   const [showEffects, setShowEffects] = useState(true);
   // Actions optionnelles mises en sourdine par le joueur (par `op`, ex. "destroy") :
   // elles ne rouvrent plus la modale automatiquement. Persisté dans le navigateur.
@@ -98,10 +100,32 @@ export default function GameBoard({ session, onQuit }) {
     return () => { unsub(); clearInterval(iv); };
   }, [id]);
 
-  // Ré-affiche l'alerte d'Embuscade de Groupe tant qu'elle n'est pas résolue.
+  // Embuscade de Groupe : ré-affichée tant qu'elle n'est pas résolue ; une fois
+  // résolue, on la fige (gaHold) et on la maintient affichée 2 min — même après
+  // que le backend l'a effacée au tour suivant — sauf si le joueur la ferme.
+  // Objectif : laisser le temps de comprendre ce qui s'est passé.
   useEffect(() => {
-    if (state.groupAmbush && !state.groupAmbush.done) setGaDismissed(false);
+    const ga = state.groupAmbush;
+    if (ga && !ga.done) {
+      // Nouvelle embuscade en cours : on repart propre.
+      setGaDismissed(false);
+      setGaHold(null);
+      if (gaTimer.current) { clearTimeout(gaTimer.current); gaTimer.current = null; }
+    } else if (ga && ga.done) {
+      // Embuscade résolue : on fige le résultat et on arme la fermeture à 2 min.
+      setGaHold(ga);
+      if (!gaTimer.current) {
+        gaTimer.current = setTimeout(() => {
+          setGaHold(null);
+          setGaDismissed(true);
+          gaTimer.current = null;
+        }, 120000);
+      }
+    }
   }, [state.groupAmbush?.done, state.groupAmbush?.name]);
+
+  // Nettoyage du minuteur d'embuscade au démontage.
+  useEffect(() => () => { if (gaTimer.current) clearTimeout(gaTimer.current); }, []);
 
   // Décompte local « joue dans Xs » pendant la pause d'un bot.
   useEffect(() => {
@@ -251,16 +275,26 @@ export default function GameBoard({ session, onQuit }) {
         />
       )}
 
-      {state.groupAmbush && !(state.groupAmbush.done && gaDismissed) && (
-        <GroupAmbushAlert
-          data={state.groupAmbush}
-          busy={busy}
-          onReveal={(eid, iid) => applyEff(eid, { iid })}
-          onGuess={(eid, guess) => applyEff(eid, { guess })}
-          onDistribute={(eid, seat) => applyEff(eid, { seat })}
-          onClose={() => setGaDismissed(true)}
-        />
-      )}
+      {(() => {
+        // Source : l'embuscade en cours si présente, sinon le snapshot figé
+        // (maintenu 2 min après résolution, cf. effet ci-dessus).
+        const ga = state.groupAmbush ?? gaHold;
+        if (!ga || (ga.done && gaDismissed)) return null;
+        return (
+          <GroupAmbushAlert
+            data={ga}
+            busy={busy}
+            onReveal={(eid, iid) => applyEff(eid, { iid })}
+            onGuess={(eid, guess) => applyEff(eid, { guess })}
+            onDistribute={(eid, seat) => applyEff(eid, { seat })}
+            onClose={() => {
+              setGaDismissed(true);
+              setGaHold(null);
+              if (gaTimer.current) { clearTimeout(gaTimer.current); gaTimer.current = null; }
+            }}
+          />
+        );
+      })()}
 
       {/* Haut du plateau : infos/actions des autres joueurs (gauche) +
           Ennemi Principal & piles compactes (droite) */}
@@ -565,9 +599,10 @@ export default function GameBoard({ session, onQuit }) {
         );
       })()}
 
-      {/* Modal : détail d'une carte en lecture seule (depuis un récap) */}
+      {/* Modal : détail d'une carte en lecture seule (depuis un récap) —
+          toujours au-dessus des autres modales (historique, log…). */}
       {cardView && (
-        <div className="modal-overlay" onClick={() => setCardView(null)}>
+        <div className="modal-overlay modal-overlay--top" onClick={() => setCardView(null)}>
           <div className="modal modal--card" onClick={(e) => e.stopPropagation()}>
             <GameCard card={cardView} size="xl" />
             <div className="controls" style={{ justifyContent: "center", marginTop: "1rem" }}>

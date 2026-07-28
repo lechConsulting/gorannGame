@@ -153,6 +153,8 @@
   display: flex; align-items: center; justify-content: center; padding: 1.2rem;
   backdrop-filter: blur(2px);
 }
+/* Vue carte ouverte depuis une autre modale : passe au premier plan. */
+.modal-overlay--top { z-index: 80; }
 .modal {
   background: #1a1e26; border: 2px solid #e9d8a6; border-radius: 14px;
   padding: 1.2rem 1.4rem; max-width: 900px; width: 100%;
