@@ -365,13 +365,14 @@ export default function GameBoard({ session, onQuit }) {
                 card={state.stacks.valorCard}
                 size="sm"
                 badge={`×${state.stacks.valor}`}
-                onClick={isMyTurn && !busy && power >= state.stacks.valorCard.cost && state.stacks.valor > 0 ? () => act("buy-valor") : undefined}
-                disabled={!isMyTurn || power < state.stacks.valorCard.cost || state.stacks.valor <= 0}
+                onClick={!busy ? () => setPreview(state.stacks.valorCard) : undefined}
+                muted={!isMyTurn || power < state.stacks.valorCard.cost || state.stacks.valor <= 0}
               />
               <GameCard
                 card={state.stacks.corruptionCard}
                 size="sm"
                 badge={`×${state.stacks.corruption}`}
+                onClick={!busy ? () => setPreview(state.stacks.corruptionCard) : undefined}
               />
             </div>
           </div>
@@ -503,16 +504,22 @@ export default function GameBoard({ session, onQuit }) {
       <p className="error">{error}</p>
       <Log log={state.log} />
 
-      {/* Modal : aperçu d'une carte (Chemin → Acheter, Ennemi Principal → Vaincre) */}
+      {/* Modal : aperçu d'une carte (Chemin/Valeur → Acheter, Ennemi Principal →
+          Vaincre, Corruption → lecture seule). */}
       {preview && (() => {
-        const isArch = preview.category === "archenemy";
+        const cat = preview.category;
+        const isArch = cat === "archenemy";
+        const isValor = cat === "valor";
+        const isCorruption = cat === "corruption";
+        const buyable = !isCorruption; // la Corruption ne s'achète pas
         const effCost = preview.cost == null
           ? null
           : isArch
             ? Math.max(0, preview.cost - archDiscount)
             : (preview.buyCost ?? preview.cost);
         const reduced = effCost != null && effCost < preview.cost;
-        const affordable = effCost != null && power >= effCost;
+        const stockOk = !isValor || (state.stacks.valor ?? 0) > 0;
+        const affordable = effCost != null && power >= effCost && stockOk;
         const label = preview.cost == null
           ? "Non achetable"
           : isArch
@@ -523,21 +530,23 @@ export default function GameBoard({ session, onQuit }) {
             <div className="modal modal--card" onClick={(e) => e.stopPropagation()}>
               <GameCard card={preview} size="xl" />
               <div className="controls" style={{ justifyContent: "center", marginTop: "1rem" }}>
-                <button
-                  className="gbtn"
-                  disabled={busy || !affordable || !isMyTurn}
-                  onClick={async () => {
-                    await act(isArch ? "defeat" : "buy-path", isArch ? undefined : preview.iid);
-                    setPreview(null);
-                  }}
-                >
-                  {isMyTurn ? label : "Pas ton tour"}
-                </button>
+                {buyable && (
+                  <button
+                    className="gbtn"
+                    disabled={busy || !affordable || !isMyTurn}
+                    onClick={async () => {
+                      await act(isArch ? "defeat" : isValor ? "buy-valor" : "buy-path", (isArch || isValor) ? undefined : preview.iid);
+                      setPreview(null);
+                    }}
+                  >
+                    {isMyTurn ? label : "Pas ton tour"}
+                  </button>
+                )}
                 <button className="gbtn gbtn--ghost" onClick={() => setPreview(null)}>Fermer</button>
               </div>
-              {effCost != null && !affordable && (
+              {buyable && isMyTurn && effCost != null && !affordable && (
                 <p style={{ textAlign: "center", color: "#ff9b8a", fontSize: "0.85rem", margin: "0.4rem 0 0" }}>
-                  Pouvoir insuffisant ({power}/{effCost}).
+                  {isValor && (state.stacks.valor ?? 0) <= 0 ? "Pile de Valeur épuisée." : `Pouvoir insuffisant (${power}/${effCost}).`}
                 </p>
               )}
             </div>
