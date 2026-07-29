@@ -62,6 +62,53 @@ class LobbyController extends AbstractController
         return $this->json($out);
     }
 
+    /**
+     * Parties EN COURS où le joueur occupe un siège — pour reprendre après une
+     * coupure réseau (l'état complet est déjà persisté à chaque action).
+     */
+    #[Route('/mine', name: 'api_lobby_mine', methods: ['GET'])]
+    public function mine(): JsonResponse
+    {
+        $user = $this->currentUser();
+        $out = [];
+        foreach ($this->sessions->findInProgress() as $s) {
+            $state = $s->getState();
+            $players = $state['players'] ?? [];
+            $mySeat = null;
+            foreach ($players as $p) {
+                if (($p['userId'] ?? null) === $user->getId()) {
+                    $mySeat = $p['seat'];
+                    break;
+                }
+            }
+            if ($mySeat === null) {
+                continue; // le joueur n'est pas à cette table
+            }
+            $activePseudo = null;
+            foreach ($players as $p) {
+                if ($p['seat'] === ($state['activeSeat'] ?? -1)) {
+                    $activePseudo = $p['pseudo'];
+                    break;
+                }
+            }
+            $out[] = [
+                'id' => $s->getId(),
+                'code' => $s->getCode(),
+                'game' => $s->getGame()?->getName(),
+                'turn' => $state['turn'] ?? 0,
+                'players' => array_map(
+                    static fn ($p) => ['pseudo' => $p['pseudo'], 'kind' => $p['kind'] ?? 'human'],
+                    $players,
+                ),
+                'activePseudo' => $activePseudo,
+                'myTurn' => ($state['activeSeat'] ?? -1) === $mySeat,
+                'isHost' => $s->getCreatedBy()?->getId() === $user->getId(),
+            ];
+        }
+
+        return $this->json($out);
+    }
+
     /** Crée une table. Body: { slug?, maxPlayers? } */
     #[Route('/create', name: 'api_lobby_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse

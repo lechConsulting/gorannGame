@@ -12,8 +12,8 @@ import { BOT_LEVELS } from "./WaitingRoom";
 const TOUR_STEPS = [
   { target: "header", emoji: "🧭", title: "Le fil du tour",
     text: "Ici s'affiche le tour en cours et à qui de jouer. Le bouton ❓ rouvre les règles quand tu veux." },
-  { target: "opponents", emoji: "🧑‍🤝‍🧑", title: "Tes adversaires",
-    text: "Leurs mains sont cachées : tu ne vois que leurs compteurs (main ✋, pioche 🂠, défausse 🗑️). Celui qui joue est mis en avant." },
+  { target: "opponents", emoji: "🧑‍🤝‍🧑", title: "L'ordre de jeu",
+    text: "Tous les joueurs dans l'ordre des tours — toi inclus (· toi). Les mains adverses sont cachées : tu ne vois que les compteurs (main ✋, pioche 🂠, défausse 🗑️). Celui qui joue est mis en avant." },
   { target: "piles", emoji: "🐉", title: "L'Ennemi Principal & les piles",
     text: "L'Archennemi à vaincre (gros bonus !), la pile Valeur 🎖️ toujours achetable, et la Corruption 🕷️ qui te retire des PV." },
   { target: "path", emoji: "🗺️", title: "Le Chemin",
@@ -141,7 +141,6 @@ export default function GameBoard({ session, onQuit }) {
   const isMyTurn = me.seat === state.activeSeat;
   const finished = state.status === "finished";
   const power = me.power;
-  const opponents = state.players.filter((p) => !p.isMe);
 
   async function act(type, iid) {
     if (!isMyTurn) return;
@@ -300,12 +299,13 @@ export default function GameBoard({ session, onQuit }) {
           Ennemi Principal & piles compactes (droite) */}
       <div className="board__head">
         <div className="board__head-info">
-      {/* Adversaires (mains cachées : compteurs seulement) */}
-      {opponents.length > 0 && (
+      {/* Ordre de jeu : tous les joueurs (dans l'ordre des sièges), y compris
+          le joueur connecté (mis en avant) — les mains adverses restent cachées. */}
+      {state.players.length > 0 && (
         <div className="opponents" data-tour="opponents">
-          {opponents.map((p) => (
-            <div key={p.seat} className={`opp ${p.seat === state.activeSeat ? "opp--active" : ""}`}>
-              <div className="opp__n">{p.kind === "bot" ? "" : "🧑 "}{p.pseudo}</div>
+          {state.players.map((p) => (
+            <div key={p.seat} className={`opp ${p.isMe ? "opp--me" : ""} ${p.seat === state.activeSeat ? "opp--active" : ""}`}>
+              <div className="opp__n">{p.kind === "bot" ? "" : "🧑 "}{p.pseudo}{p.isMe ? " · toi" : ""}</div>
               <div className="opp__h">{p.hero}{p.level ? ` · ${BOT_LEVELS[p.level]?.label ?? p.level}` : ""}</div>
               <div className="opp__stats">
                 <span>✋ {p.handCount}</span>
@@ -421,14 +421,11 @@ export default function GameBoard({ session, onQuit }) {
       {/* Chemin (gauche) + Historique cliquable (droite) */}
       <div className="path-row">
       <div className="zone" data-tour="path">
-        <div className="zone__label">Deck principal &amp; Chemin — clique une carte abordable pour l'acheter</div>
-        <div className="row">
-          <div className="deck-pile" title="Deck principal (pioche du Chemin)">
-            <span className="deck-pile__emoji">🗺️</span>
-            <span className="deck-pile__n">{state.mainDeckCount}</span>
-            <span className="deck-pile__l">Deck</span>
-          </div>
-          <div className="card-gap" aria-hidden="true" />
+        <div className="zone__label zone__label--path">
+          <span>Chemin — clique une carte abordable pour l'acheter</span>
+          <span className="deck-mini" title="Deck principal (pioche du Chemin)">🗺️ {state.mainDeckCount}</span>
+        </div>
+        <div className="row row--path">
           <AnimatePresence mode="popLayout">
             {state.path.map((c) => {
               const eff = c.buyCost ?? c.cost;

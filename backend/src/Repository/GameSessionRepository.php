@@ -27,4 +27,10 @@ class GameSessionRepository extends ServiceEntityRepository
     {
         return $this->findBy(['status' => SessionStatus::Waiting], ['createdAt' => 'DESC']);
     }
+
+    /** Parties en cours (pour la reprise après coupure). @return GameSession[] */
+    public function findInProgress(): array
+    {
+        return $this->findBy(['status' => SessionStatus::InProgress], ['startedAt' => 'DESC']);
+    }
 }

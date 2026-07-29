@@ -116,6 +116,7 @@ export const api = {
 
   // Lobby (multijoueur)
   lobbyList: () => req("GET", "/api/lobby", null, true),
+  lobbyMine: () => req("GET", "/api/lobby/mine", null, true), // mes parties en cours (reprise)
   lobbyCreate: (maxPlayers, pseudo, slug = "lotr-deck-builder") => req("POST", "/api/lobby/create", { slug, maxPlayers, pseudo }, true),
   lobbyJoin: (code, pseudo) => req("POST", "/api/lobby/join", { code, pseudo }, true),
   lobbyGet: (id) => req("GET", `/api/lobby/${id}`, null, true),

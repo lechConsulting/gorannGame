@@ -1,18 +1,37 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 
-// Accueil (après connexion) : créer une table ou en rejoindre une par code.
-export default function Lobby({ me, onEnterLobby, onAdmin, onLogout }) {
+// Accueil (après connexion) : créer une table, en rejoindre une par code, ou
+// reprendre une partie en cours (l'état est sauvegardé côté serveur).
+export default function Lobby({ me, onEnterLobby, onResume, onAdmin, onLogout }) {
   const [maxPlayers, setMaxPlayers] = useState(5);
   const [code, setCode] = useState("");
   const [pseudo, setPseudo] = useState(me?.pseudo || "");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mine, setMine] = useState([]); // parties en cours à reprendre
 
   // Pré-remplit avec le pseudo du compte dès qu'il est chargé.
   useEffect(() => {
     if (me?.pseudo) setPseudo((p) => p || me.pseudo);
   }, [me?.pseudo]);
+
+  // Charge les parties en cours du joueur (reprise après coupure).
+  useEffect(() => {
+    api.lobbyMine().then(setMine).catch(() => setMine([]));
+  }, []);
+
+  async function resume(id) {
+    setBusy(true);
+    setError("");
+    try {
+      const session = await api.getGame(id);
+      onResume(session);
+    } catch (e) {
+      setError(e.message);
+      setBusy(false);
+    }
+  }
 
   async function create() {
     setBusy(true);
@@ -49,6 +68,32 @@ export default function Lobby({ me, onEnterLobby, onAdmin, onLogout }) {
         Ton pseudo à la table
         <input value={pseudo} onChange={(e) => setPseudo(e.target.value)} placeholder="Ton pseudo" maxLength={24} />
       </label>
+
+      {/* Reprise : parties en cours où le joueur a un siège. */}
+      {mine.length > 0 && (
+        <div className="resume">
+          <h2>▶️ Reprendre une partie</h2>
+          <p style={{ opacity: 0.65, fontSize: "0.82rem", margin: "0 0 0.6rem" }}>
+            Tes parties en cours sont sauvegardées : reprends là où tu t'es arrêté.
+          </p>
+          <div className="resume__list">
+            {mine.map((s) => (
+              <div key={s.id} className="resume__row">
+                <div className="resume__info">
+                  <strong>{s.game}</strong> · tour {s.turn} · code {s.code}
+                  <div className="resume__sub">
+                    {s.players.map((p) => p.pseudo).join(", ")}
+                    {s.activePseudo && (
+                      <> — {s.myTurn ? "à toi de jouer" : `au tour de ${s.activePseudo}`}</>
+                    )}
+                  </div>
+                </div>
+                <button className="gbtn" disabled={busy} onClick={() => resume(s.id)}>Reprendre</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="home-grid">
         <div className="home-card">

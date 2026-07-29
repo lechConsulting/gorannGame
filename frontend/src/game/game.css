@@ -32,6 +32,15 @@
   color: #b7a97f; margin-bottom: 0.4rem; font-weight: 800;
 }
 .row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: flex-start; }
+/* Libellé du Chemin : description à gauche, compteur de deck compact à droite. */
+.zone__label--path { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+.deck-mini {
+  text-transform: none; letter-spacing: 0; font-size: 0.82rem; font-weight: 800;
+  color: #e9d8a6; background: rgba(233,216,166,0.12); border: 1px solid rgba(233,216,166,0.35);
+  border-radius: 999px; padding: 0.1rem 0.55rem; white-space: nowrap;
+}
+/* Chemin sur une seule ligne (scroll horizontal en secours si trop étroit). */
+.row--path { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.3rem; }
 
 /* Piles latérales (Valeur / Archennemi / Corruption) */
 .stacks { display: flex; gap: 0.8rem; flex-wrap: wrap; }
@@ -257,6 +266,22 @@
   padding: 0.5rem 0.7rem; border-radius: 8px; border: 1px solid #555;
   background: #1c1f26; color: #e8e6df; font-size: 1rem;
 }
+/* Reprise d'une partie en cours (accueil) */
+.resume {
+  margin-top: 1.4rem; background: rgba(155,224,180,0.06);
+  border: 1px solid rgba(155,224,180,0.35); border-radius: 14px; padding: 1rem 1.2rem;
+}
+.resume h2 { margin: 0 0 0.2rem; color: #9be0b4; font-size: 1.05rem; }
+.resume__list { display: flex; flex-direction: column; gap: 0.6rem; }
+.resume__row {
+  display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 0.6rem 0.8rem;
+}
+.resume__info { flex: 1 1 auto; min-width: 0; font-size: 0.9rem; }
+.resume__sub { font-size: 0.78rem; opacity: 0.75; margin-top: 0.15rem; }
+.resume__row .gbtn { flex: 0 0 auto; }
+
 .table-code { color: #ffd94a; letter-spacing: 2px; font-size: 1.15rem; }
 .my-pseudo { display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin: 0.6rem 0; flex-wrap: wrap; }
 .my-pseudo label { color: #b7a97f; font-weight: 700; font-size: 0.85rem; }
@@ -300,6 +325,9 @@
   border-radius: 10px; padding: 0.45rem 0.7rem; min-width: 150px;
 }
 .opp--active { border-color: #ffd94a; box-shadow: 0 0 0 1px #ffd94a inset; }
+/* Le joueur connecté dans la bande d'ordre de jeu : liseré vert discret. */
+.opp--me { border-color: rgba(155,224,180,0.6); background: rgba(155,224,180,0.08); }
+.opp--me.opp--active { border-color: #ffd94a; }
 .opp__n { font-weight: 800; font-size: 0.85rem; }
 .opp__h { font-size: 0.72rem; color: #e9d8a6; opacity: 0.85; }
 .opp__stats { display: flex; gap: 0.6rem; font-size: 0.72rem; opacity: 0.85; margin-top: 0.2rem; }

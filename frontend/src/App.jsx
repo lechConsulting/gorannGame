@@ -50,6 +50,7 @@ export default function App() {
     <Lobby
       me={me}
       onEnterLobby={setLobby}
+      onResume={setSession}
       onAdmin={() => setView("admin")}
       onLogout={logout}
     />
