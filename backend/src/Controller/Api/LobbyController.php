@@ -109,6 +109,37 @@ class LobbyController extends AbstractController
         return $this->json($out);
     }
 
+    /**
+     * Abandonne (supprime définitivement) une partie où le joueur a un siège.
+     * Utile pour nettoyer les parties de test / abandonnées de la liste de reprise.
+     */
+    #[Route('/{id}/abandon', name: 'api_lobby_abandon', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function abandon(int $id): JsonResponse
+    {
+        $user = $this->currentUser();
+        $session = $this->sessions->find($id);
+        if (!$session) {
+            return $this->json(['error' => 'Partie introuvable.'], 404);
+        }
+
+        // Seul un joueur assis à la table (ou un admin) peut l'abandonner.
+        $seated = false;
+        foreach ($session->getState()['players'] ?? [] as $p) {
+            if (($p['userId'] ?? null) === $user->getId()) {
+                $seated = true;
+                break;
+            }
+        }
+        if (!$seated && !$user->isAdmin()) {
+            return $this->json(['error' => 'Tu n\'es pas à cette table.'], 403);
+        }
+
+        $this->em->remove($session);
+        $this->em->flush();
+
+        return $this->json(['ok' => true]);
+    }
+
     /** Crée une table. Body: { slug?, maxPlayers? } */
     #[Route('/create', name: 'api_lobby_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse

@@ -33,6 +33,20 @@ export default function Lobby({ me, onEnterLobby, onResume, onAdmin, onLogout })
     }
   }
 
+  async function abandon(id) {
+    if (!window.confirm("Abandonner cette partie ? Elle sera définitivement supprimée.")) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api.lobbyAbandon(id);
+      setMine((list) => list.filter((s) => s.id !== id));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function create() {
     setBusy(true);
     setError("");
@@ -88,7 +102,11 @@ export default function Lobby({ me, onEnterLobby, onResume, onAdmin, onLogout })
                     )}
                   </div>
                 </div>
-                <button className="gbtn" disabled={busy} onClick={() => resume(s.id)}>Reprendre</button>
+                <div className="resume__actions">
+                  <button className="gbtn" disabled={busy} onClick={() => resume(s.id)}>Reprendre</button>
+                  <button className="gbtn gbtn--ghost resume__abandon" disabled={busy}
+                    onClick={() => abandon(s.id)} title="Supprimer définitivement cette partie">🗑️ Abandonner</button>
+                </div>
               </div>
             ))}
           </div>

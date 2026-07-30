@@ -280,7 +280,10 @@
 }
 .resume__info { flex: 1 1 auto; min-width: 0; font-size: 0.9rem; }
 .resume__sub { font-size: 0.78rem; opacity: 0.75; margin-top: 0.15rem; }
-.resume__row .gbtn { flex: 0 0 auto; }
+.resume__actions { flex: 0 0 auto; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.resume__actions .gbtn { flex: 0 0 auto; }
+.resume__abandon { color: #ff9b8a; border-color: rgba(192,83,58,0.5); }
+.resume__abandon:hover:not(:disabled) { background: rgba(192,83,58,0.18); }
 
 .table-code { color: #ffd94a; letter-spacing: 2px; font-size: 1.15rem; }
 .my-pseudo { display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin: 0.6rem 0; flex-wrap: wrap; }
